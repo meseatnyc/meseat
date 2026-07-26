@@ -1,0 +1,1883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MeSeat — Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ── Reset ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cashmere:  #F0E9DB;
+    --chocolate: #2B1F16;
+    --gold:      #C4A030;
+    --olive:     #8A9B6E;
+    --milk:      #FCFAF6;
+    --muted:     #5F5348;
+    --red-soft:  #B96A5B;
+    --font-title: 'Cormorant Garamond', Georgia, serif;
+    --font-ui:    'Jost', 'Helvetica Neue', sans-serif;
+    --card-border: 1.5px solid rgba(43,31,22,.16);
+    --card-shadow: 0 3px 14px rgba(43,31,22,.12);
+  }
+
+  body {
+    background: #D8D0C4;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-ui);
+    padding: 24px 0;
+  }
+
+  /* ── Phone shell ── */
+  .phone {
+    width: 390px;
+    height: 844px;
+    border-radius: 50px;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 10px #2A2018,
+      0 40px 80px rgba(0,0,0,.45),
+      inset 0 0 0 2px rgba(255,255,255,.12);
+    position: relative;
+    background: var(--cashmere);
+  }
+  .notch {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 126px; height: 34px;
+    background: #2A2018;
+    border-radius: 0 0 20px 20px;
+    z-index: 60;
+  }
+
+  /* ── Screens ── */
+  .screen {
+    position: absolute;
+    inset: 0;
+    background: var(--cashmere);
+    color: var(--chocolate);
+    overflow-y: auto;
+    display: none;
+    padding-bottom: 96px; /* room for nav */
+    scrollbar-width: none;
+  }
+  .screen::-webkit-scrollbar { width: 0; }
+  .screen.active { display: block; }
+
+  .screen-pad { padding: 60px 20px 0; }
+
+  /* ── Typography helpers ── */
+  .h-display {
+    font-family: var(--font-title);
+    font-weight: 400;
+    line-height: 1.1;
+  }
+  .eyebrow {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .18em;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  /* ── Cards (contrast fixed: milk bg + border + shadow) ── */
+  .card {
+    background: var(--milk);
+    border: var(--card-border);
+    box-shadow: var(--card-shadow);
+    border-radius: 14px;
+  }
+
+  /* ── Buttons ── */
+  .btn-primary {
+    width: 100%;
+    background: var(--chocolate);
+    color: var(--milk);
+    border: none;
+    padding: 16px;
+    border-radius: 12px;
+    font-family: var(--font-ui);
+    font-size: 16px;
+    letter-spacing: .5px;
+    cursor: pointer;
+    transition: transform .2s cubic-bezier(.4,0,.2,1), background .2s;
+  }
+  .btn-primary:active { transform: scale(.97); background: #2B2019; }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 1px solid rgba(43,31,22,.18);
+    background: transparent;
+    font-family: var(--font-ui);
+    font-size: 12.5px;
+    color: var(--chocolate);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background .2s, color .2s;
+  }
+  .chip.active { background: var(--chocolate); color: var(--milk); border-color: var(--chocolate); }
+
+  .chips-row {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+  .chips-row::-webkit-scrollbar { display: none; }
+
+  /* ── Bottom navigation ── */
+  .bottom-nav {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 84px;
+    background: rgba(252,250,246,.92);
+    backdrop-filter: blur(14px);
+    border-top: 1px solid rgba(43,31,22,.08);
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    padding-top: 12px;
+    z-index: 50;
+  }
+  .nav-item {
+    background: none;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    font-family: var(--font-ui);
+    font-size: 10px;
+    letter-spacing: .06em;
+    color: rgba(43,31,22,.45);
+    width: 64px;
+  }
+  .nav-item svg { width: 22px; height: 22px; fill: rgba(43,31,22,.4); transition: fill .2s; }
+  .nav-item.active { color: var(--chocolate); font-weight: 500; }
+  .nav-item.active svg { fill: var(--chocolate); }
+
+  /* ── Stars ── */
+  .stars { display: inline-flex; gap: 2px; }
+  .stars svg { width: 11px; height: 11px; fill: var(--gold); }
+
+  /* ── Section titles ── */
+  .section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin: 26px 0 14px;
+  }
+  .section-head .h-display { font-size: 22px; }
+  .section-head a {
+    font-size: 12px;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: .04em;
+  }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="notch"></div>
+
+  <!-- ════════════ SPLASH ════════════ -->
+  <div id="splash" style="
+      position:absolute; inset:0; z-index:100;
+      background: var(--cashmere);
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      animation: splashOut .8s ease forwards; animation-delay:2.2s;">
+    <div style="text-align:center;">
+      <div style="font-family: var(--font-title); font-size:46px; font-weight:400; color:var(--chocolate);">MeSeat</div>
+      <svg width="140" height="24" viewBox="0 0 150 26" fill="none" style="display:block; margin:6px auto 0;">
+        <path d="M18 4 v10 q0 4 4 4 h96 q4 0 4-4 V4" stroke="#C4A030" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M26 18 v5 M114 18 v5" stroke="#C4A030" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <div style="font-size:9px; letter-spacing:.5em; text-transform:uppercase; color:var(--muted); margin-top:10px; padding-left:.5em;">New York City</div>
+    </div>
+  </div>
+  <style>
+    @keyframes splashOut {
+      to { opacity:0; visibility:hidden; }
+    }
+  </style>
+
+  <!-- ════════════ SCREEN 1: HOME ════════════ -->
+  <div class="screen active" id="screen-home">
+    <style>
+      .home-hello { padding-top: 60px; }
+      .home-hello .eyebrow { margin-bottom: 6px; }
+      .home-hello h1 { font-size: 34px; }
+      .home-hello h1 em { font-style: italic; color: var(--muted); }
+
+      .home-logo {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 22px;
+      }
+      .home-logo .wordmark {
+        font-family: var(--font-title);
+        font-size: 28px;
+        font-weight: 400;
+        color: var(--chocolate);
+        line-height: 1;
+      }
+      .home-logo .seat-svg { display: block; margin: 4px 0 0; }
+      .home-logo .loc {
+        font-size: 8px;
+        text-transform: uppercase;
+        letter-spacing: .4em;
+        color: var(--muted);
+        font-weight: 500;
+        margin-top: 7px;
+        padding-left: .4em;
+      }
+      .home-bell {
+        background: rgba(252,250,246,.8);
+        border: 1px solid rgba(43,31,22,.1);
+        border-radius: 50%;
+        width: 38px; height: 38px;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer;
+        margin-top: 4px;
+      }
+      .home-bell svg { width: 17px; height: 17px; fill: var(--chocolate); }
+
+      .search-glass {
+        margin-top: 18px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(252,250,246,.75);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(43,31,22,.12);
+        border-radius: 14px;
+        padding: 13px 16px;
+        box-shadow: 0 4px 14px rgba(43,31,22,.05);
+      }
+      .search-glass svg { width: 17px; height: 17px; fill: rgba(43,31,22,.4); flex-shrink: 0; }
+      .search-glass input {
+        border: none; background: none; outline: none;
+        font-family: var(--font-ui); font-size: 14px;
+        color: var(--chocolate); width: 100%;
+      }
+      .search-glass input::placeholder { color: rgba(43,31,22,.38); }
+
+      .glow-banner {
+        margin-top: 22px;
+        padding: 16px 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: linear-gradient(120deg, #FCFAF6 0%, #F5EDDD 100%);
+        border: 1px solid rgba(212,175,55,.35);
+        box-shadow: var(--card-shadow);
+        border-radius: 14px;
+      }
+      .glow-banner .gp-num {
+        font-family: var(--font-title);
+        font-size: 30px;
+        color: var(--chocolate);
+        line-height: 1;
+      }
+      .glow-banner .gp-label { font-size: 11px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; margin-top: 3px; }
+      .glow-banner .gp-cta {
+        font-size: 12px; color: var(--gold); font-weight: 500; letter-spacing: .05em;
+        display: flex; align-items: center; gap: 4px;
+      }
+
+      .master-card {
+        margin-bottom: 14px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: transform .2s;
+      }
+      .master-card:active { transform: scale(.98); }
+      .mc-photo {
+        height: 150px;
+        position: relative;
+        background: linear-gradient(135deg, #E4DACA 0%, #CDBFA9 100%);
+        display: flex; align-items: center; justify-content: center;
+      }
+      .mc-photo span {
+        font-family: var(--font-title);
+        font-style: italic;
+        font-size: 17px;
+        color: rgba(43,31,22,.35);
+      }
+      .mc-badge {
+        position: absolute; top: 12px; left: 12px;
+        background: rgba(43,31,22,.72);
+        backdrop-filter: blur(6px);
+        color: var(--gold);
+        font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase;
+        padding: 4px 10px; border-radius: 12px; font-weight: 500;
+      }
+      .mc-slot {
+        position: absolute; bottom: 12px; right: 12px;
+        background: rgba(252,250,246,.85);
+        backdrop-filter: blur(6px);
+        font-size: 11px; color: var(--chocolate);
+        padding: 4px 10px; border-radius: 12px;
+        display: flex; align-items: center; gap: 5px;
+      }
+      .mc-slot .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--olive); }
+      .mc-body { padding: 14px 16px 16px; display: flex; justify-content: space-between; align-items: flex-start; }
+      .mc-name { font-family: var(--font-title); font-size: 21px; }
+      .mc-meta { font-size: 12px; color: var(--muted); margin-top: 3px; display: flex; align-items: center; gap: 6px; }
+      .mc-price { font-size: 15px; font-weight: 500; text-align: right; }
+      .mc-price small { display: block; font-size: 10px; color: var(--muted); font-weight: 400; letter-spacing: .05em; }
+    </style>
+
+    <div class="screen-pad home-hello">
+      <div class="home-logo">
+        <div>
+          <div class="wordmark">MeSeat</div>
+          <svg class="seat-svg" width="112" height="19" viewBox="0 0 150 26" fill="none">
+            <path d="M18 4 v10 q0 4 4 4 h96 q4 0 4-4 V4" stroke="#C4A030" stroke-width="2" stroke-linecap="round" fill="none"/>
+            <path d="M26 18 v5 M114 18 v5" stroke="#C4A030" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <div class="loc">New York City</div>
+        </div>
+        <button class="home-bell" aria-label="Notifications">
+          <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+        </button>
+      </div>
+      <h1 class="h-display">Good morning,<br><em>find your master</em></h1>
+
+      <div class="search-glass">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7 14 5 12 5 9.5S7 5 9.5 5 14 7 14 9.5 12 14 9.5 14z"/></svg>
+        <input type="text" placeholder="Service, master, or neighborhood">
+      </div>
+
+      <div class="chips-row" style="margin-top:16px">
+        <button class="chip active">All</button>
+        <button class="chip">Gel manicure</button>
+        <button class="chip">Extensions</button>
+        <button class="chip">Pedicure</button>
+        <button class="chip">Nail art</button>
+        <button class="chip">Duo Session</button>
+      </div>
+
+      <div class="glow-banner">
+        <div>
+          <div class="gp-num">120</div>
+          <div class="gp-label">Glow Points</div>
+        </div>
+        <div class="gp-cta">Redeem perks
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="#C4A030"><path d="M9 18l6-6-6-6" stroke="#C4A030" stroke-width="2" fill="none"/></svg>
+        </div>
+      </div>
+
+      <div style="text-align:center; margin-top:14px; font-size:12px; color:var(--muted);">
+        Nail master? <a onclick="goTo('register')" style="color:var(--gold); font-weight:500; cursor:pointer; text-decoration:underline; text-underline-offset:3px;">Join MeSeat</a>
+      </div>
+
+      <div class="section-head">
+        <div class="h-display">Available today</div>
+        <a href="#">See all</a>
+      </div>
+
+      <div class="card master-card" onclick="goTo('profile')">
+        <div class="mc-photo">
+          <span>Nail portfolio</span>
+          <div class="mc-badge">Elite</div>
+          <div class="mc-slot"><div class="dot"></div>Today · 2:30 PM</div>
+        </div>
+        <div class="mc-body">
+          <div>
+            <div class="mc-name">Arina K.</div>
+            <div class="mc-meta">
+              <span class="stars"><svg viewBox="0 0 12 12"><path d="M6 1l1.4 2.8 3.1.5-2.3 2.2.6 3.1L6 8.2l-2.8 1.4.6-3.1L1.5 4.3l3.1-.5z"/></svg></span>
+              4.9 · 84 · Midtown
+            </div>
+          </div>
+          <div class="mc-price">from $85<small>gel manicure</small></div>
+        </div>
+      </div>
+
+      <div class="card master-card">
+        <div class="mc-photo" style="background:linear-gradient(135deg,#E9DFD2 0%,#D2C2AC 100%)">
+          <span>Nail portfolio</span>
+          <div class="mc-slot"><div class="dot"></div>Today · 5:00 PM</div>
+        </div>
+        <div class="mc-body">
+          <div>
+            <div class="mc-name">Milana V.</div>
+            <div class="mc-meta">
+              <span class="stars"><svg viewBox="0 0 12 12"><path d="M6 1l1.4 2.8 3.1.5-2.3 2.2.6 3.1L6 8.2l-2.8 1.4.6-3.1L1.5 4.3l3.1-.5z"/></svg></span>
+              4.8 · 51 · Williamsburg
+            </div>
+          </div>
+          <div class="mc-price">from $70<small>manicure</small></div>
+        </div>
+      </div>
+
+      <div class="card master-card">
+        <div class="mc-photo" style="background:linear-gradient(135deg,#E0D8CC 0%,#C6B9A5 100%)">
+          <span>Nail portfolio</span>
+          <div class="mc-badge" style="color:#FCFAF6">Duo Session</div>
+          <div class="mc-slot"><div class="dot"></div>Tomorrow · 11:00 AM</div>
+        </div>
+        <div class="mc-body">
+          <div>
+            <div class="mc-name">Sofia R.</div>
+            <div class="mc-meta">
+              <span class="stars"><svg viewBox="0 0 12 12"><path d="M6 1l1.4 2.8 3.1.5-2.3 2.2.6 3.1L6 8.2l-2.8 1.4.6-3.1L1.5 4.3l3.1-.5z"/></svg></span>
+              5.0 · 32 · Astoria
+            </div>
+          </div>
+          <div class="mc-price">from $95<small>soft gel set</small></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ SCREEN 2: MASTER PROFILE ════════════ -->
+  <div class="screen" id="screen-profile">
+    <style>
+      .ms-profile-header {
+        position: absolute; top: 0; left: 0; right: 0; z-index: 10;
+        display: flex; justify-content: space-between;
+        padding: 44px 20px 16px;
+        background: linear-gradient(to bottom, rgba(43,31,22,.18), rgba(0,0,0,0));
+      }
+      .ms-icon-btn {
+        background: rgba(252,250,246,.75);
+        border: none; border-radius: 50%;
+        width: 40px; height: 40px;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; backdrop-filter: blur(8px);
+        transition: transform .2s;
+      }
+      .ms-icon-btn:active { transform: scale(.92); }
+      .ms-icon-btn svg { width: 18px; height: 18px; fill: var(--chocolate); }
+
+      .ms-hero-gallery { position: relative; width: 100%; height: 320px; }
+      .ms-gallery-stub {
+        width: 100%; height: 100%;
+        background: linear-gradient(135deg, #DFD6C7 0%, #C8BCAC 100%);
+        display: flex; align-items: center; justify-content: center;
+        position: relative; overflow: hidden;
+      }
+      .ms-gallery-stub::before {
+        content: ''; position: absolute; inset: 0;
+        background:
+          radial-gradient(circle at 30% 40%, rgba(212,175,55,.12) 0%, transparent 55%),
+          radial-gradient(circle at 75% 70%, rgba(43,31,22,.08) 0%, transparent 50%);
+      }
+      .ms-gallery-stub span {
+        font-family: var(--font-title); font-size: 22px; font-style: italic;
+        color: rgba(43,31,22,.35); letter-spacing: 1px; position: relative; z-index: 1;
+      }
+      .ms-photo-count {
+        position: absolute; bottom: 52px; right: 20px;
+        background: rgba(43,31,22,.45); backdrop-filter: blur(6px);
+        color: var(--milk); font-size: 11px; letter-spacing: .06em;
+        padding: 4px 10px; border-radius: 20px; z-index: 5;
+      }
+      .ms-indicators {
+        position: absolute; bottom: 32px; left: 0; right: 0;
+        display: flex; justify-content: center; gap: 6px;
+      }
+      .ms-indicator { width: 24px; height: 2px; background: rgba(252,250,246,.35); border-radius: 1px; }
+      .ms-indicator.active { background: var(--gold); }
+
+      .ms-profile-content {
+        background: var(--cashmere);
+        border-radius: 24px 24px 0 0;
+        margin-top: -20px;
+        position: relative; z-index: 2;
+        padding: 28px 20px 120px;
+      }
+      .ms-rating-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+      .ms-rating-num { font-size: 12px; font-weight: 500; letter-spacing: .04em; }
+      .ms-reviews-count { font-size: 12px; color: rgba(43,31,22,.5); }
+      .ms-verified {
+        margin-left: auto; display: flex; align-items: center; gap: 4px;
+        font-size: 10px; text-transform: uppercase; letter-spacing: .1em;
+        color: var(--olive); font-weight: 500;
+      }
+      .ms-verified svg { width: 12px; height: 12px; fill: var(--olive); }
+
+      .ms-title-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
+      .ms-master-name { font-family: var(--font-title); font-size: 32px; font-weight: 400; }
+      .ms-status-badge {
+        font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px;
+        color: var(--gold); border: 1px solid var(--chocolate);
+        padding: 3px 10px; border-radius: 12px; font-weight: 500; white-space: nowrap;
+      }
+      .ms-meta-row { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; flex-wrap: wrap; }
+      .ms-meta-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: rgba(43,31,22,.6); }
+      .ms-meta-item svg { width: 13px; height: 13px; fill: rgba(43,31,22,.45); }
+      .ms-avail-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--olive); }
+
+      .ms-duo-row {
+        display: flex; align-items: center; gap: 8px;
+        font-size: 12px; color: var(--chocolate);
+        background: rgba(138,155,110,.12);
+        border: 1px solid rgba(138,155,110,.3);
+        border-radius: 10px; padding: 8px 12px;
+        margin: 6px 0 16px; width: fit-content;
+      }
+      .ms-duo-row svg { width: 14px; height: 14px; fill: var(--olive); }
+
+      .ms-bio { font-size: 14px; line-height: 1.55; color: rgba(43,31,22,.75); margin-bottom: 26px; font-weight: 300; }
+
+      .ms-tabs { display: flex; gap: 24px; border-bottom: 1px solid rgba(43,31,22,.1); margin-bottom: 22px; }
+      .ms-tab-btn {
+        background: none; border: none; font-family: var(--font-ui);
+        font-size: 14px; color: rgba(43,31,22,.45);
+        padding-bottom: 10px; cursor: pointer; position: relative; letter-spacing: .02em;
+      }
+      .ms-tab-btn.active { color: var(--chocolate); font-weight: 500; }
+      .ms-tab-btn.active::after {
+        content: ''; position: absolute; bottom: -1px; left: 0; right: 0;
+        height: 2px; background: var(--chocolate);
+      }
+
+      .ms-service-card {
+        padding: 18px;
+        display: flex; justify-content: space-between; align-items: center;
+        cursor: pointer; margin-bottom: 12px;
+        transition: transform .2s;
+      }
+      .ms-service-card:active { transform: scale(.98); }
+      .ms-service-name { font-size: 15px; margin-bottom: 4px; letter-spacing: .01em; }
+      .ms-service-duration { font-size: 12px; color: rgba(43,31,22,.55); font-weight: 300; }
+      .ms-service-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+      .ms-service-price { font-size: 16px; font-weight: 500; }
+      .ms-service-arrow svg { width: 14px; height: 14px; stroke: rgba(43,31,22,.35); fill: none; stroke-width: 2; }
+
+      .ms-sticky-bottom {
+        position: absolute; bottom: 84px; left: 0; right: 0;
+        padding: 18px 20px;
+        background: linear-gradient(to top, var(--cashmere) 75%, rgba(240,233,219,0));
+        z-index: 5;
+      }
+    </style>
+
+    <div class="ms-profile-header">
+      <button class="ms-icon-btn" onclick="goTo('home')" aria-label="Back">
+        <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      </button>
+      <button class="ms-icon-btn" aria-label="Share">
+        <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+      </button>
+    </div>
+
+    <div class="ms-hero-gallery">
+      <div class="ms-gallery-stub"><span>Nail portfolio</span></div>
+      <span class="ms-photo-count">1 / 7</span>
+      <div class="ms-indicators">
+        <div class="ms-indicator active"></div>
+        <div class="ms-indicator"></div>
+        <div class="ms-indicator"></div>
+        <div class="ms-indicator"></div>
+        <div class="ms-indicator"></div>
+      </div>
+    </div>
+
+    <div class="ms-profile-content">
+      <div class="ms-rating-row">
+        <span class="stars">
+          <svg viewBox="0 0 12 12"><path d="M6 1l1.4 2.8 3.1.5-2.3 2.2.6 3.1L6 8.2l-2.8 1.4.6-3.1L1.5 4.3l3.1-.5z"/></svg>
+          <svg viewBox="0 0 12 12"><path d="M6 1l1.4 2.8 3.1.5-2.3 2.2.6 3.1L6 8.2l-2.8 1.4.6-3.1L1.5 4.3l3.1-.5z"/></svg>
+          <svg viewBox="0 0 12 12"><path d="M6 1l1.4 2.8 3.1.5-2.3 2.2.6 3.1L6 8.2l-2.8 1.4.6-3.1L1.5 4.3l3.1-.5z"/></svg>
+          <svg viewBox="0 0 12 12"><path d="M6 1l1.4 2.8 3.1.5-2.3 2.2.6 3.1L6 8.2l-2.8 1.4.6-3.1L1.5 4.3l3.1-.5z"/></svg>
+          <svg viewBox="0 0 12 12"><path d="M6 1l1.4 2.8 3.1.5-2.3 2.2.6 3.1L6 8.2l-2.8 1.4.6-3.1L1.5 4.3l3.1-.5z"/></svg>
+        </span>
+        <span class="ms-rating-num">4.9</span>
+        <span class="ms-reviews-count">(84 reviews)</span>
+        <div class="ms-verified">
+          <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          NYS Licensed
+        </div>
+      </div>
+
+      <div class="ms-title-row">
+        <h1 class="ms-master-name">Arina K.</h1>
+        <span class="ms-status-badge">Elite</span>
+      </div>
+
+      <div class="ms-meta-row">
+        <div class="ms-meta-item">
+          <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+          Midtown, NYC
+        </div>
+        <div class="ms-meta-item"><div class="ms-avail-dot"></div>Available today</div>
+        <div class="ms-meta-item">
+          <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>
+          from 60 min
+        </div>
+      </div>
+
+      <div class="ms-duo-row">
+        <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+        Available for Duo Session
+      </div>
+
+      <p class="ms-bio">
+        Specialising in soft gel and precision nail art. 6+ years in NYC. I work slowly and carefully — your comfort matters as much as the result.
+      </p>
+
+      <div class="ms-tabs" id="profile-tabs">
+        <button class="ms-tab-btn active">Services</button>
+        <button class="ms-tab-btn">Portfolio</button>
+        <button class="ms-tab-btn">Reviews</button>
+      </div>
+
+      <div class="ms-services-list">
+        <div class="card ms-service-card">
+          <div>
+            <p class="ms-service-name">Gel Manicure</p>
+            <p class="ms-service-duration">60 min · includes cuticle work</p>
+          </div>
+          <div class="ms-service-right">
+            <span class="ms-service-price">$85</span>
+            <div class="ms-service-arrow"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+          </div>
+        </div>
+        <div class="card ms-service-card">
+          <div>
+            <p class="ms-service-name">Soft Gel Extensions</p>
+            <p class="ms-service-duration">90 min · up to 10mm length</p>
+          </div>
+          <div class="ms-service-right">
+            <span class="ms-service-price">$120</span>
+            <div class="ms-service-arrow"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+          </div>
+        </div>
+        <div class="card ms-service-card">
+          <div>
+            <p class="ms-service-name">Nail Art · Custom Design</p>
+            <p class="ms-service-duration">30 min add-on · per nail or full set</p>
+          </div>
+          <div class="ms-service-right">
+            <span class="ms-service-price">from $30</span>
+            <div class="ms-service-arrow"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+          </div>
+        </div>
+        <div class="card ms-service-card">
+          <div>
+            <p class="ms-service-name">Removal + Refill</p>
+            <p class="ms-service-duration">75 min · safe soak-off included</p>
+          </div>
+          <div class="ms-service-right">
+            <span class="ms-service-price">$95</span>
+            <div class="ms-service-arrow"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ms-sticky-bottom">
+      <button class="btn-primary" onclick="startBooking('Gel Manicure', 85)">Book a Session</button>
+    </div>
+  </div>
+
+  <!-- ════════════ SCREEN 3: MY CALENDAR (master) ════════════ -->
+  <div class="screen" id="screen-calendar">
+    <style>
+      .cal-summary {
+        margin-top: 16px;
+        padding: 18px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px 10px;
+      }
+      .cal-sum-item .val { font-family: var(--font-title); font-size: 24px; line-height: 1; }
+      .cal-sum-item .lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; margin-top: 4px; }
+
+      .cal-legend { display: flex; gap: 14px; margin: 16px 2px 8px; font-size: 11px; color: var(--muted); }
+      .cal-legend span { display: flex; align-items: center; gap: 5px; }
+      .leg-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+      .cal-month {
+        padding: 16px;
+      }
+      .cal-month-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 6px;
+        text-align: center;
+      }
+      .cal-dow { font-size: 9px; color: var(--muted); letter-spacing: .08em; padding-bottom: 4px; }
+      .cal-day {
+        aspect-ratio: 1;
+        border-radius: 9px;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        font-size: 12px; gap: 3px;
+        cursor: pointer;
+      }
+      .cal-day .dots { display: flex; gap: 2px; }
+      .cal-day .dots i { width: 4px; height: 4px; border-radius: 50%; display: block; }
+      .cal-day.today { background: var(--chocolate); color: var(--milk); font-weight: 500; }
+      .cal-day.muted { color: rgba(43,31,22,.3); }
+
+      .timeline { position: relative; margin-top: 10px; }
+      .tl-hour { display: flex; gap: 12px; min-height: 64px; }
+      .tl-time { width: 52px; font-size: 11px; color: var(--muted); padding-top: 2px; flex-shrink: 0; }
+      .tl-slot { flex: 1; border-top: 1px dashed rgba(43,31,22,.12); padding: 6px 0; }
+      .tl-appt {
+        padding: 12px 14px;
+        border-left: 3px solid var(--gold);
+        border-radius: 10px;
+        margin-bottom: 6px;
+      }
+      .tl-appt .who { font-size: 14px; font-weight: 500; }
+      .tl-appt .what { font-size: 12px; color: var(--muted); margin-top: 2px; }
+      .tl-appt .pref { font-size: 11px; color: var(--olive); margin-top: 5px; display: flex; align-items: center; gap: 4px; }
+      .tl-free {
+        font-size: 11.5px; color: var(--olive);
+        border: 1px dashed rgba(138,155,110,.5);
+        border-radius: 10px;
+        padding: 9px 14px;
+        background: rgba(138,155,110,.06);
+      }
+      .now-line {
+        position: absolute;
+        left: 62px; right: 0;
+        top: 148px;
+        height: 2px;
+        background: var(--red-soft);
+        z-index: 3;
+      }
+      .now-line::before {
+        content: '';
+        position: absolute; left: -6px; top: -4px;
+        width: 10px; height: 10px; border-radius: 50%;
+        background: var(--red-soft);
+      }
+
+      .waitlist {
+        margin-top: 18px;
+        padding: 16px 18px;
+        display: flex; align-items: center; justify-content: space-between;
+        border: 1px solid rgba(212,175,55,.4);
+        background: linear-gradient(120deg, #FCFAF6 0%, #F6EEDD 100%);
+      }
+      .waitlist .wl-txt { font-size: 13px; }
+      .waitlist .wl-txt b { font-weight: 500; }
+      .waitlist button {
+        background: var(--chocolate); color: var(--milk);
+        border: none; border-radius: 10px;
+        font-family: var(--font-ui); font-size: 12px;
+        padding: 9px 14px; cursor: pointer;
+      }
+
+      .fab-add {
+        position: absolute;
+        right: 20px; bottom: 104px;
+        width: 54px; height: 54px;
+        border-radius: 50%;
+        background: var(--chocolate);
+        color: var(--milk);
+        border: none;
+        font-size: 26px;
+        cursor: pointer;
+        box-shadow: 0 8px 20px rgba(43,31,22,.35);
+        z-index: 20;
+        line-height: 1;
+      }
+    </style>
+
+    <div class="screen-pad">
+      <div style="padding-top:8px">
+        <div class="eyebrow">My Calendar · Master view</div>
+        <h1 class="h-display" style="font-size:30px;margin-top:4px">Tuesday, July 7</h1>
+      </div>
+
+      <div class="card cal-summary">
+        <div class="cal-sum-item"><div class="val">5</div><div class="lbl">Appointments</div></div>
+        <div class="cal-sum-item"><div class="val">$470</div><div class="lbl">Expected today</div></div>
+        <div class="cal-sum-item"><div class="val">9:00 – 6:30</div><div class="lbl">First – last</div></div>
+        <div class="cal-sum-item"><div class="val">2</div><div class="lbl">Open slots</div></div>
+      </div>
+
+      <div class="cal-legend">
+        <span><i class="leg-dot" style="background:var(--olive)"></i>Open</span>
+        <span><i class="leg-dot" style="background:var(--red-soft)"></i>Booked</span>
+        <span><i class="leg-dot" style="background:var(--gold)"></i>Reserved · 1h</span>
+      </div>
+
+      <div class="card cal-month">
+        <div class="cal-month-grid">
+          <div class="cal-dow">M</div><div class="cal-dow">T</div><div class="cal-dow">W</div><div class="cal-dow">T</div><div class="cal-dow">F</div><div class="cal-dow">S</div><div class="cal-dow">S</div>
+          <div class="cal-day">6<div class="dots"><i style="background:var(--red-soft)"></i><i style="background:var(--red-soft)"></i></div></div>
+          <div class="cal-day today">7<div class="dots"><i style="background:var(--gold)"></i><i style="background:#FCFAF6"></i></div></div>
+          <div class="cal-day">8<div class="dots"><i style="background:var(--olive)"></i><i style="background:var(--red-soft)"></i></div></div>
+          <div class="cal-day">9<div class="dots"><i style="background:var(--olive)"></i><i style="background:var(--olive)"></i></div></div>
+          <div class="cal-day">10<div class="dots"><i style="background:var(--red-soft)"></i><i style="background:var(--gold)"></i></div></div>
+          <div class="cal-day">11<div class="dots"><i style="background:var(--olive)"></i></div></div>
+          <div class="cal-day muted">12</div>
+        </div>
+      </div>
+
+      <div class="section-head">
+        <div class="h-display">Today's timeline</div>
+        <a href="#">Week view</a>
+      </div>
+
+      <div class="timeline">
+        <div class="now-line"></div>
+
+        <div class="tl-hour">
+          <div class="tl-time">9:00 AM</div>
+          <div class="tl-slot">
+            <div class="card tl-appt">
+              <div class="who">Jessica M.</div>
+              <div class="what">Gel Manicure · 60 min · $85</div>
+              <div class="pref">♡ Prefers rounded shape, sensitive cuticles</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tl-hour">
+          <div class="tl-time">10:30 AM</div>
+          <div class="tl-slot">
+            <div class="card tl-appt" style="border-left-color:var(--olive)">
+              <div class="who">Olga T. · VIP 🥇</div>
+              <div class="what">Soft Gel Extensions · 90 min · $120</div>
+              <div class="pref">♡ Almond shape · comes every 3 weeks</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tl-hour">
+          <div class="tl-time">12:30 PM</div>
+          <div class="tl-slot">
+            <div class="tl-free">Open slot · 60 min — tap to close</div>
+          </div>
+        </div>
+
+        <div class="tl-hour">
+          <div class="tl-time">2:00 PM</div>
+          <div class="tl-slot">
+            <div class="card tl-appt">
+              <div class="who">Maria S.</div>
+              <div class="what">Removal + Refill · 75 min · $95</div>
+              <div class="pref">♡ First visit — confirm design references</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card waitlist">
+        <div class="wl-txt"><b>3 clients</b> are waiting for an opening today</div>
+        <button>Offer slot</button>
+      </div>
+    </div>
+
+    <button class="fab-add" aria-label="Add booking">+</button>
+  </div>
+
+  <!-- ════════════ SCREEN 4: MY MONEY ════════════ -->
+  <div class="screen" id="screen-money">
+    <style>
+      .money-big { margin-top: 18px; padding: 22px 20px; }
+      .money-big .sum { font-family: var(--font-title); font-size: 44px; line-height: 1; }
+      .money-big .cmp { font-size: 12.5px; color: var(--olive); margin-top: 8px; display: flex; align-items: center; gap: 5px; }
+      .money-big .net { font-size: 12px; color: var(--muted); margin-top: 10px; }
+      .money-big .net b { color: var(--olive); font-weight: 500; }
+
+      .bar-chart {
+        margin-top: 14px; padding: 18px;
+      }
+      .bars { display: flex; align-items: flex-end; gap: 8px; height: 110px; }
+      .bar { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+      .bar i { width: 100%; border-radius: 6px 6px 0 0; background: rgba(43,31,22,.22); display: block; }
+      .bar.best i { background: var(--gold); }
+      .bar.forecast i { background: rgba(43,31,22,.10); border: 1px dashed rgba(43,31,22,.2); }
+      .bar span { font-size: 9px; color: var(--muted); letter-spacing: .04em; }
+
+      .split-row { display: flex; justify-content: space-between; align-items: center; padding: 13px 0; border-bottom: 1px solid rgba(43,31,22,.07); font-size: 13.5px; }
+      .split-row:last-child { border-bottom: none; }
+      .split-row .lbl { color: rgba(43,31,22,.75); }
+      .split-row .val { font-weight: 500; }
+      .split-row .val.gold { color: var(--gold); }
+      .split-row .val.olive { color: var(--olive); }
+
+      .payout {
+        margin-top: 14px; padding: 16px 18px;
+        display: flex; justify-content: space-between; align-items: center;
+      }
+      .payout .lbl { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; }
+      .payout .date { font-family: var(--font-title); font-size: 20px; margin-top: 3px; }
+      .payout .amt { font-family: var(--font-title); font-size: 28px; }
+
+      .buffer { margin-top: 14px; padding: 16px 18px; }
+      .buffer .row { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+      .buffer .track { height: 8px; border-radius: 4px; background: rgba(43,31,22,.1); overflow: hidden; }
+      .buffer .fill { height: 100%; width: 62%; background: linear-gradient(90deg, var(--gold), #E5C55C); border-radius: 4px; }
+
+      .txn { padding: 14px 16px; display: flex; justify-content: space-between; margin-bottom: 10px; }
+      .txn .who { font-size: 14px; font-weight: 500; }
+      .txn .what { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+      .txn .amt { text-align: right; font-weight: 500; font-size: 14px; }
+      .txn .tip { font-size: 11px; color: var(--olive); margin-top: 2px; }
+    </style>
+
+    <div class="screen-pad">
+      <div style="padding-top:8px">
+        <div class="eyebrow">My Money</div>
+        <h1 class="h-display" style="font-size:30px;margin-top:4px">Earnings</h1>
+      </div>
+
+      <div class="chips-row" style="margin-top:14px">
+        <button class="chip">Today</button>
+        <button class="chip active">Last 7 Days</button>
+        <button class="chip">Last 30 Days</button>
+        <button class="chip">This Month</button>
+        <button class="chip">Custom</button>
+      </div>
+
+      <div class="card money-big">
+        <div class="sum">$2,140</div>
+        <div class="cmp">▲ +12% vs previous week</div>
+        <div class="net">Net to you after commission &amp; buffer: <b>$1,795</b></div>
+      </div>
+
+      <div class="card bar-chart">
+        <div class="bars">
+          <div class="bar"><i style="height:45%"></i><span>Mon</span></div>
+          <div class="bar"><i style="height:70%"></i><span>Tue</span></div>
+          <div class="bar"><i style="height:38%"></i><span>Wed</span></div>
+          <div class="bar best"><i style="height:100%"></i><span>Thu</span></div>
+          <div class="bar"><i style="height:62%"></i><span>Fri</span></div>
+          <div class="bar"><i style="height:84%"></i><span>Sat</span></div>
+          <div class="bar forecast"><i style="height:58%"></i><span>Next wk</span></div>
+        </div>
+      </div>
+
+      <div class="section-head"><div class="h-display">Breakdown</div></div>
+      <div class="card" style="padding:6px 18px">
+        <div class="split-row"><span class="lbl">Gel manicure · 60%</span><span class="val">$1,284</span></div>
+        <div class="split-row"><span class="lbl">Extensions · 25%</span><span class="val">$535</span></div>
+        <div class="split-row"><span class="lbl">Pedicure · 15%</span><span class="val">$321</span></div>
+        <div class="split-row"><span class="lbl">Tips — 100% yours</span><span class="val gold">$310</span></div>
+        <div class="split-row"><span class="lbl">Saved by no-show protection</span><span class="val olive">$85</span></div>
+      </div>
+
+      <div class="card payout">
+        <div>
+          <div class="lbl">Next payout</div>
+          <div class="date">Friday, July 10</div>
+        </div>
+        <div class="amt">$1,795</div>
+      </div>
+
+      <div class="card buffer">
+        <div class="row"><span>Insurance buffer</span><span>$124 of $200</span></div>
+        <div class="track"><div class="fill"></div></div>
+      </div>
+
+      <div class="section-head">
+        <div class="h-display">Transactions</div>
+        <a href="#">All</a>
+      </div>
+
+      <div class="card txn">
+        <div>
+          <div class="who">Jessica M.</div>
+          <div class="what">Jul 7 · 9:00 AM · Gel Manicure · #TX-4821</div>
+        </div>
+        <div>
+          <div class="amt">$85</div>
+          <div class="tip">+ $17 tip</div>
+        </div>
+      </div>
+      <div class="card txn">
+        <div>
+          <div class="who">Olga T.</div>
+          <div class="what">Jul 7 · 10:30 AM · Soft Gel Extensions · #TX-4820</div>
+        </div>
+        <div>
+          <div class="amt">$120</div>
+          <div class="tip">+ $24 tip</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ SCREEN 5: MAP SEARCH ════════════ -->
+  <div class="screen" id="screen-map">
+    <style>
+      .map-top {
+        position: absolute; top: 0; left: 0; right: 0;
+        z-index: 10;
+        padding: 56px 20px 14px;
+        background: linear-gradient(to bottom, rgba(240,233,219,.97) 65%, rgba(240,233,219,0));
+      }
+      .map-search-row { display: flex; gap: 10px; }
+      .map-search-row .search-box {
+        flex: 1;
+        display: flex; align-items: center; gap: 9px;
+        background: rgba(252,250,246,.9);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(43,31,22,.12);
+        border-radius: 13px;
+        padding: 12px 14px;
+        box-shadow: 0 4px 14px rgba(43,31,22,.06);
+      }
+      .map-search-row svg { width: 16px; height: 16px; fill: rgba(43,31,22,.4); }
+      .map-search-row input {
+        border: none; background: none; outline: none;
+        font-family: var(--font-ui); font-size: 13.5px;
+        color: var(--chocolate); width: 100%;
+      }
+      .map-filter-btn {
+        width: 44px; height: 44px;
+        border-radius: 13px;
+        background: var(--chocolate);
+        border: none;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer;
+        flex-shrink: 0;
+      }
+      .map-filter-btn svg { fill: var(--milk) !important; width: 17px; height: 17px; }
+
+      .map-canvas {
+        position: absolute; inset: 0;
+        background:
+          radial-gradient(circle at 20% 25%, rgba(138,155,110,.10) 0%, transparent 40%),
+          radial-gradient(circle at 80% 60%, rgba(212,175,55,.08) 0%, transparent 45%),
+          linear-gradient(135deg, #EDE6D8 0%, #E2D8C6 100%);
+      }
+      /* street grid imitation */
+      .map-canvas::before {
+        content: '';
+        position: absolute; inset: 0;
+        background-image:
+          linear-gradient(rgba(43,31,22,.055) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(43,31,22,.055) 1px, transparent 1px);
+        background-size: 56px 56px;
+      }
+      .map-canvas::after {
+        content: '';
+        position: absolute;
+        left: -10%; top: 30%;
+        width: 130%; height: 90px;
+        background: rgba(138,155,110,.13);
+        transform: rotate(-9deg);
+        border-radius: 60px;
+      }
+
+      .map-pin {
+        position: absolute;
+        width: 46px; height: 46px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #E4DACA, #CDBFA9);
+        border: 3px solid var(--milk);
+        box-shadow: 0 4px 12px rgba(43,31,22,.25);
+        display: flex; align-items: center; justify-content: center;
+        font-family: var(--font-title);
+        font-size: 15px;
+        color: var(--chocolate);
+        cursor: pointer;
+        z-index: 5;
+      }
+      .map-pin.open { border-color: var(--olive); box-shadow: 0 0 0 3px rgba(138,155,110,.3), 0 4px 12px rgba(43,31,22,.25); }
+      .map-pin.selected { transform: scale(1.15); border-color: var(--gold); z-index: 6; }
+      .map-me {
+        position: absolute;
+        left: 48%; top: 52%;
+        width: 14px; height: 14px;
+        background: var(--chocolate);
+        border: 3px solid var(--milk);
+        border-radius: 50%;
+        box-shadow: 0 0 0 6px rgba(43,31,22,.12);
+        z-index: 4;
+      }
+
+      .map-carousel {
+        position: absolute;
+        left: 0; right: 0; bottom: 96px;
+        display: flex;
+        gap: 12px;
+        overflow-x: auto;
+        padding: 6px 20px 8px;
+        scrollbar-width: none;
+        z-index: 8;
+      }
+      .map-carousel::-webkit-scrollbar { display: none; }
+      .map-card {
+        min-width: 270px;
+        overflow: hidden;
+        cursor: pointer;
+      }
+      .map-card .mcard-photo {
+        height: 100px;
+        background: linear-gradient(135deg, #E4DACA 0%, #CDBFA9 100%);
+        display: flex; align-items: center; justify-content: center;
+        position: relative;
+      }
+      .map-card .mcard-photo span {
+        font-family: var(--font-title); font-style: italic;
+        font-size: 14px; color: rgba(43,31,22,.35);
+      }
+      .map-card .slot-tag {
+        position: absolute; bottom: 8px; right: 8px;
+        background: rgba(252,250,246,.9);
+        font-size: 10.5px;
+        padding: 3px 8px;
+        border-radius: 10px;
+        display: flex; align-items: center; gap: 4px;
+      }
+      .map-card .slot-tag i { width: 5px; height: 5px; border-radius: 50%; background: var(--olive); display: block; }
+      .map-card .mcard-body {
+        padding: 11px 14px 13px;
+        display: flex; justify-content: space-between; align-items: center;
+      }
+      .map-card .nm { font-family: var(--font-title); font-size: 17px; }
+      .map-card .mt { font-size: 11px; color: var(--muted); margin-top: 2px; }
+      .map-card .pr { font-size: 13px; font-weight: 500; white-space: nowrap; }
+    </style>
+
+    <div class="map-canvas">
+      <div class="map-me"></div>
+      <div class="map-pin open selected" style="left:30%; top:34%" onclick="goTo('profile')">A</div>
+      <div class="map-pin open" style="left:64%; top:44%">M</div>
+      <div class="map-pin" style="left:22%; top:60%">S</div>
+      <div class="map-pin open" style="left:74%; top:24%">D</div>
+    </div>
+
+    <div class="map-top">
+      <div class="map-search-row">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7 14 5 12 5 9.5S7 5 9.5 5 14 7 14 9.5 12 14 9.5 14z"/></svg>
+          <input type="text" placeholder="Search near me">
+        </div>
+        <button class="map-filter-btn" aria-label="Filters">
+          <svg viewBox="0 0 24 24"><path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"/></svg>
+        </button>
+      </div>
+      <div class="chips-row" style="margin-top:10px">
+        <button class="chip active">When</button>
+        <button class="chip">Price</button>
+        <button class="chip">Neighborhood</button>
+        <button class="chip">Service</button>
+      </div>
+    </div>
+
+    <div class="map-carousel">
+      <div class="card map-card" onclick="goTo('profile')">
+        <div class="mcard-photo">
+          <span>Nail portfolio</span>
+          <div class="slot-tag"><i></i>Today · 2:30 PM</div>
+        </div>
+        <div class="mcard-body">
+          <div>
+            <div class="nm">Arina K.</div>
+            <div class="mt">★ 4.9 · Midtown · 0.4 mi</div>
+          </div>
+          <div class="pr">from $85</div>
+        </div>
+      </div>
+      <div class="card map-card">
+        <div class="mcard-photo" style="background:linear-gradient(135deg,#E9DFD2,#D2C2AC)">
+          <span>Nail portfolio</span>
+          <div class="slot-tag"><i></i>Today · 5:00 PM</div>
+        </div>
+        <div class="mcard-body">
+          <div>
+            <div class="nm">Milana V.</div>
+            <div class="mt">★ 4.8 · Williamsburg · 1.1 mi</div>
+          </div>
+          <div class="pr">from $70</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ════════════ SCREEN 6: CLIENT PROFILE ════════════ -->
+  <div class="screen" id="screen-clientprofile">
+    <style>
+      .cp-head { display:flex; justify-content:space-between; align-items:flex-start; padding-top:8px; }
+      .cp-langs { display:flex; gap:6px; }
+      .cp-langs .chip { padding:5px 11px; font-size:11px; }
+      .cp-hello { font-family:var(--font-title); font-size:30px; margin-top:10px; }
+      .cp-hello em { font-style:italic; color:var(--muted); }
+
+      .loyalty-card { margin-top:18px; padding:18px; }
+      .loyalty-top { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px; }
+      .loyalty-tier { font-family:var(--font-title); font-size:22px; }
+      .loyalty-next { font-size:11px; color:var(--muted); }
+      .loyalty-track { height:7px; border-radius:4px; background:rgba(43,31,22,.1); overflow:hidden; }
+      .loyalty-fill { height:100%; width:40%; background:linear-gradient(90deg, var(--gold), #D9BC5A); }
+      .loyalty-medals { display:flex; justify-content:space-between; margin-top:8px; font-size:11px; color:var(--muted); }
+
+      .cp-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:14px; }
+      .cp-tile { padding:16px; }
+      .cp-tile .num { font-family:var(--font-title); font-size:26px; line-height:1; }
+      .cp-tile .lbl { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; margin-top:5px; }
+      .cp-tile .sub { font-size:11px; color:var(--olive); margin-top:6px; }
+
+      .passport { margin-top:14px; padding:16px 18px; }
+      .pp-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:12px; }
+      .pp-stamp {
+        aspect-ratio:1; border-radius:50%;
+        border:1.5px solid rgba(43,31,22,.15);
+        display:flex; flex-direction:column; align-items:center; justify-content:center;
+        gap:3px; font-size:9px; color:var(--muted); text-align:center; padding:6px;
+      }
+      .pp-stamp.got { border-color:var(--gold); background:rgba(196,160,48,.08); color:var(--chocolate); }
+      .pp-stamp .ic { font-size:17px; }
+
+      .dna-chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+      .dna-chips .chip { pointer-events:none; }
+      .dna-chips .chip.active { background:var(--chocolate); color:var(--milk); }
+
+      .hist-item { padding:14px 16px; display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+      .hist-item .who { font-size:14px; font-weight:500; }
+      .hist-item .what { font-size:11.5px; color:var(--muted); margin-top:2px; }
+      .hist-item .again {
+        font-size:11.5px; color:var(--gold); font-weight:500;
+        border:1px solid rgba(196,160,48,.5); border-radius:10px; padding:7px 11px; cursor:pointer;
+        white-space:nowrap;
+      }
+      .invite-card {
+        margin-top:14px; padding:16px 18px;
+        display:flex; justify-content:space-between; align-items:center;
+        border:1px solid rgba(196,160,48,.4);
+        background:linear-gradient(120deg, #FCFAF6 0%, #F7F0DE 100%);
+      }
+      .invite-card .t { font-size:13px; }
+      .invite-card .t b { font-weight:500; }
+      .invite-card button {
+        background:var(--chocolate); color:var(--milk); border:none; border-radius:10px;
+        font-family:var(--font-ui); font-size:12px; padding:9px 14px; cursor:pointer;
+      }
+      .upc-empty { font-size:12.5px; color:var(--muted); padding:14px 4px; }
+      .upc-item { padding:14px 16px; margin-bottom:10px; border-left:3px solid var(--gold); }
+      .upc-item .t1 { font-size:14px; font-weight:500; }
+      .upc-item .t2 { font-size:12px; color:var(--muted); margin-top:3px; }
+    </style>
+
+    <div class="screen-pad">
+      <div class="cp-head">
+        <div class="eyebrow" data-i18n="myprofile">My profile</div>
+        <div class="cp-langs">
+          <button class="chip active" onclick="setLang('en', this)">EN</button>
+          <button class="chip" onclick="setLang('es', this)">ES</button>
+          <button class="chip" onclick="setLang('ru', this)">RU</button>
+        </div>
+      </div>
+      <h1 class="cp-hello"><span data-i18n="hello">Hello,</span> <em>Solange</em></h1>
+
+      <div class="card loyalty-card">
+        <div class="loyalty-top">
+          <div class="loyalty-tier">🥈 <span data-i18n="reliable">Reliable</span></div>
+          <div class="loyalty-next">8 <span data-i18n="of">of</span> 20 <span data-i18n="tovip">visits to VIP</span></div>
+        </div>
+        <div class="loyalty-track"><div class="loyalty-fill"></div></div>
+        <div class="loyalty-medals"><span>🥉 New</span><span>🥈 5+</span><span>🥇 VIP · 20+</span></div>
+      </div>
+
+      <div class="cp-grid">
+        <div class="card cp-tile">
+          <div class="num">120</div>
+          <div class="lbl">Glow Points</div>
+          <div class="sub" data-i18n="redeem">Redeem perks →</div>
+        </div>
+        <div class="card cp-tile">
+          <div class="num">🔥 4</div>
+          <div class="lbl" data-i18n="streak">Nail Streak</div>
+          <div class="sub" data-i18n="every3w">Every 3 weeks · regular</div>
+        </div>
+      </div>
+
+      <div class="card passport">
+        <div class="section-head" style="margin:0 0 2px">
+          <div class="h-display" style="font-size:19px">Nail Passport</div>
+          <a data-i18n="stamps36">3 of 6 stamps</a>
+        </div>
+        <div class="pp-grid">
+          <div class="pp-stamp got"><span class="ic">💅</span>Gel</div>
+          <div class="pp-stamp got"><span class="ic">🪷</span>Soft Gel</div>
+          <div class="pp-stamp got"><span class="ic">🎨</span>Nail Art</div>
+          <div class="pp-stamp"><span class="ic">🌸</span>French</div>
+          <div class="pp-stamp"><span class="ic">✨</span>Chrome</div>
+          <div class="pp-stamp"><span class="ic">🦶</span>Pedicure</div>
+        </div>
+      </div>
+
+      <div class="card passport">
+        <div class="section-head" style="margin:0 0 2px">
+          <div class="h-display" style="font-size:19px">Style DNA</div>
+          <a data-i18n="after3">defined after 3+ visits</a>
+        </div>
+        <div class="dna-chips">
+          <span class="chip active">Almond</span>
+          <span class="chip active">Nude tones</span>
+          <span class="chip active">Minimal art</span>
+          <span class="chip">Short length</span>
+        </div>
+      </div>
+
+      <div class="section-head">
+        <div class="h-display" data-i18n="upcoming">Upcoming</div>
+      </div>
+      <div id="cp-upcoming">
+        <div class="upc-empty" data-i18n="noupcoming">Nothing booked yet. Browse masters near you.</div>
+      </div>
+
+      <div class="section-head">
+        <div class="h-display" data-i18n="history">Visit history</div>
+      </div>
+      <div class="card hist-item">
+        <div>
+          <div class="who">Arina K.</div>
+          <div class="what">Jun 18 · Gel Manicure · $85</div>
+        </div>
+        <div class="again" onclick="startBooking('Gel Manicure', 85)" data-i18n="again">Book again</div>
+      </div>
+      <div class="card hist-item">
+        <div>
+          <div class="who">Arina K.</div>
+          <div class="what">May 28 · Soft Gel Extensions · $120</div>
+        </div>
+        <div class="again" onclick="startBooking('Soft Gel Extensions', 120)" data-i18n="again">Book again</div>
+      </div>
+
+      <div class="invite-card">
+        <div class="t"><b data-i18n="duobonus">Duo Bonus</b><br><span style="font-size:11.5px; color:var(--muted);" data-i18n="invitetxt">Invite a friend — you both get perks</span></div>
+        <button data-i18n="invite">Invite</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ SCREEN 7: BOOKING FLOW ════════════ -->
+  <div class="screen" id="screen-booking">
+    <style>
+      .bk-head { display:flex; align-items:center; gap:12px; padding-top:8px; }
+      .bk-back {
+        background:var(--milk); border:1px solid rgba(43,31,22,.12); border-radius:50%;
+        width:38px; height:38px; display:flex; align-items:center; justify-content:center; cursor:pointer;
+      }
+      .bk-back svg { width:16px; height:16px; fill:var(--chocolate); }
+      .bk-service-line { margin-top:14px; padding:14px 16px; display:flex; justify-content:space-between; align-items:center; }
+      .bk-service-line .s1 { font-size:14px; font-weight:500; }
+      .bk-service-line .s2 { font-size:11.5px; color:var(--muted); margin-top:2px; }
+      .bk-service-line .pr { font-family:var(--font-title); font-size:20px; }
+
+      .bk-month { padding:16px; margin-top:14px; }
+      .bk-month-title { font-family:var(--font-title); font-size:19px; text-align:center; margin-bottom:12px; }
+      .bk-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; text-align:center; }
+      .bk-dow { font-size:9px; color:var(--muted); letter-spacing:.08em; padding-bottom:4px; }
+      .bk-day {
+        aspect-ratio:1; border-radius:10px; display:flex; flex-direction:column;
+        align-items:center; justify-content:center; gap:3px; font-size:12.5px; cursor:default;
+      }
+      .bk-day .d { width:5px; height:5px; border-radius:50%; background:transparent; }
+      .bk-day.avail { cursor:pointer; }
+      .bk-day.avail .d { background:var(--olive); }
+      .bk-day.muted { color:rgba(43,31,22,.28); }
+      .bk-day.sel { background:var(--chocolate); color:var(--milk); font-weight:500; }
+      .bk-day.sel .d { background:var(--gold); }
+
+      .bk-slots { margin-top:14px; display:none; }
+      .bk-slots .chips-row { flex-wrap:wrap; }
+      .bk-confirm { margin-top:16px; display:none; }
+      .bk-sum { padding:18px; }
+      .bk-row { display:flex; justify-content:space-between; font-size:13px; padding:6px 0; }
+      .bk-row.total { border-top:1px solid rgba(43,31,22,.1); margin-top:6px; padding-top:12px; font-weight:500; font-size:14.5px; }
+      .bk-hold { font-size:11.5px; color:var(--muted); margin-top:10px; line-height:1.5; }
+      .bk-done { display:none; text-align:center; padding-top:40px; }
+      .bk-done .big { font-family:var(--font-title); font-size:34px; }
+      .bk-done .mid { font-size:13.5px; color:var(--muted); margin-top:10px; line-height:1.6; }
+      .bk-done .rep { margin-top:22px; }
+      .bk-done .rep-lbl { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; margin-bottom:10px; }
+    </style>
+
+    <div class="screen-pad">
+      <div class="bk-head">
+        <div class="bk-back" onclick="goTo('profile')">
+          <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+        </div>
+        <div>
+          <div class="eyebrow">Book with Arina K.</div>
+          <div class="h-display" style="font-size:24px" data-i18n="pick">Pick a time</div>
+        </div>
+      </div>
+
+      <div class="card bk-service-line">
+        <div>
+          <div class="s1" id="bk-svc-name">Gel Manicure</div>
+          <div class="s2">60 min · Midtown, NYC</div>
+        </div>
+        <div class="pr" id="bk-svc-price">$85</div>
+      </div>
+
+      <div id="bk-step-cal">
+        <div class="card bk-month">
+          <div class="bk-month-title">July 2026</div>
+          <div class="bk-grid" id="bk-grid"></div>
+        </div>
+
+        <div class="bk-slots" id="bk-slots">
+          <div class="section-head" style="margin:8px 0 10px">
+            <div class="h-display" style="font-size:19px" data-i18n="openslots">Open slots</div>
+          </div>
+          <div class="chips-row" id="bk-slot-chips"></div>
+        </div>
+
+        <div class="bk-confirm" id="bk-confirm">
+          <div class="card bk-sum">
+            <div class="bk-row"><span id="bk-sum-what">Gel Manicure · Jul 27 · 2:30 PM</span></div>
+            <div class="bk-row"><span data-i18n="service">Service</span><span id="bk-sum-price">$85.00</span></div>
+            <div class="bk-row"><span>Sales tax NYC 4.5%</span><span id="bk-sum-tax">$3.83</span></div>
+            <div class="bk-row total"><span data-i18n="total">Total</span><span id="bk-sum-total">$88.83</span></div>
+            <div class="bk-hold" id="bk-hold-note"></div>
+          </div>
+          <button class="btn-primary" style="margin-top:14px" onclick="confirmBooking()" data-i18n="confirm">Confirm booking</button>
+        </div>
+      </div>
+
+      <div class="bk-done" id="bk-done">
+        <div class="big" data-i18n="booked">You're booked.</div>
+        <div class="mid" id="bk-done-what">Gel Manicure · Jul 27 · 2:30 PM<br>Arina K. · Midtown</div>
+        <div class="mid" data-i18n="holdnote">Your card is on hold — you'll be charged after the service is complete.</div>
+        <div class="rep">
+          <div class="rep-lbl" data-i18n="repeat">Repeat this visit every</div>
+          <div class="chips-row" style="justify-content:center">
+            <button class="chip">2 weeks</button>
+            <button class="chip active">3 weeks</button>
+            <button class="chip">4 weeks</button>
+            <button class="chip">Custom</button>
+          </div>
+        </div>
+        <button class="btn-primary" style="margin-top:26px" onclick="goTo('clientprofile')" data-i18n="done">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ SCREEN 8: MASTER REGISTRATION ════════════ -->
+  <div class="screen" id="screen-register">
+    <style>
+      .rg-sec { margin-top:16px; padding:18px; }
+      .rg-sec .t { font-family:var(--font-title); font-size:19px; margin-bottom:12px; }
+      .rg-field { margin-bottom:12px; }
+      .rg-field label { display:block; font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; margin-bottom:6px; }
+      .rg-field input[type=text], .rg-field input[type=email], .rg-field input[type=tel], .rg-field input[type=number] {
+        width:100%; border:1.5px solid rgba(43,31,22,.18); border-radius:10px;
+        background:#FFFFFF; padding:12px 13px; font-family:var(--font-ui); font-size:14px; color:var(--chocolate);
+        outline:none;
+      }
+      .rg-field input:focus { border-color:var(--gold); }
+      .rg-note { font-size:11px; color:var(--muted); margin-top:6px; line-height:1.5; }
+      .rg-file {
+        display:flex; align-items:center; gap:10px;
+        border:1.5px dashed rgba(43,31,22,.25); border-radius:10px; padding:13px;
+        font-size:12.5px; color:var(--muted); cursor:pointer; background:#fff;
+      }
+      .rg-file.done { border-color:var(--olive); color:var(--chocolate); border-style:solid; }
+      .rg-svc { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid rgba(43,31,22,.07); }
+      .rg-svc:last-child { border-bottom:none; }
+      .rg-svc .n { font-size:13.5px; }
+      .rg-svc .n small { display:block; font-size:10.5px; color:var(--muted); }
+      .rg-svc input { width:74px; border:1.5px solid rgba(43,31,22,.18); border-radius:8px; padding:8px; font-size:13px; text-align:right; }
+      .rg-days { display:flex; gap:7px; flex-wrap:wrap; }
+      .rg-toggle { display:flex; justify-content:space-between; align-items:center; }
+      .rg-toggle .lbl2 { font-size:13.5px; }
+      .rg-toggle .lbl2 small { display:block; font-size:11px; color:var(--muted); margin-top:2px; }
+      .sw { width:46px; height:27px; border-radius:14px; background:rgba(43,31,22,.15); position:relative; cursor:pointer; transition:background .2s; flex-shrink:0; }
+      .sw::after { content:''; position:absolute; top:3px; left:3px; width:21px; height:21px; border-radius:50%; background:#fff; transition:left .2s; box-shadow:0 1px 4px rgba(0,0,0,.2); }
+      .sw.on { background:var(--olive); }
+      .sw.on::after { left:22px; }
+      .rg-done { display:none; text-align:center; padding-top:56px; }
+      .rg-done .big { font-family:var(--font-title); font-size:30px; line-height:1.2; }
+      .rg-done .mid { font-size:13.5px; color:var(--muted); margin-top:12px; line-height:1.65; padding:0 10px; }
+    </style>
+
+    <div class="screen-pad">
+      <div class="bk-head">
+        <div class="bk-back" onclick="goTo('home')">
+          <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+        </div>
+        <div>
+          <div class="eyebrow">For masters</div>
+          <div class="h-display" style="font-size:24px">Join MeSeat</div>
+        </div>
+      </div>
+
+      <div id="rg-form">
+        <div style="font-size:13px; color:var(--muted); margin-top:14px; line-height:1.55;">
+          Your chair, your clients, your schedule — all yours.<br>
+          12% commission · tips 100% yours · beta masters keep 10% for life.
+        </div>
+
+        <div class="card rg-sec">
+          <div class="t">About you</div>
+          <div class="rg-field"><label>Full name</label><input type="text" id="rg-name" placeholder="Snezhana Vaneeva"></div>
+          <div class="rg-field"><label>Professional name (shown to clients)</label><input type="text" id="rg-pro" placeholder="Nani Senior"></div>
+          <div class="rg-field"><label>Email</label><input type="email" id="rg-email" placeholder="you@email.com"></div>
+          <div class="rg-field"><label>Phone (1 number = 1 account)</label><input type="tel" id="rg-phone" placeholder="+1 ..."></div>
+        </div>
+
+        <div class="card rg-sec">
+          <div class="t">NYS License</div>
+          <div class="rg-field"><label>License number</label><input type="text" id="rg-lic" placeholder="e.g. 1234567"></div>
+          <label class="rg-file" id="rg-file-lbl">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="#5F5348"><path d="M19.35 10.04A7.49 7.49 0 0 0 12 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 0 0 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+            <span id="rg-file-txt">Upload license photo</span>
+            <input type="file" accept="image/*" style="display:none" id="rg-file" onchange="licFile(this)">
+          </label>
+          <div class="rg-note">We verify every license with NYS. Your profile stays hidden from clients until verified — usually under 24 hours.</div>
+        </div>
+
+        <div class="card rg-sec">
+          <div class="t">Location</div>
+          <div class="rg-field"><label>Neighborhood</label><input type="text" id="rg-hood" placeholder="Midtown, Manhattan"></div>
+          <div class="rg-note">Your exact address is never public — clients see it only after their deposit is confirmed.</div>
+        </div>
+
+        <div class="card rg-sec">
+          <div class="t">Services & prices</div>
+          <div class="rg-svc"><div class="n">Gel Manicure<small>60 min</small></div><input type="number" value="85" id="rg-p1"></div>
+          <div class="rg-svc"><div class="n">Soft Gel Extensions<small>90 min</small></div><input type="number" value="120" id="rg-p2"></div>
+          <div class="rg-svc"><div class="n">Pedicure<small>75 min</small></div><input type="number" value="70" id="rg-p3"></div>
+          <div class="rg-note">You can edit services, durations and prices anytime — even during a session.</div>
+        </div>
+
+        <div class="card rg-sec">
+          <div class="t">Weekly schedule</div>
+          <div class="rg-days">
+            <button class="chip active">Mon</button><button class="chip active">Tue</button>
+            <button class="chip active">Wed</button><button class="chip active">Thu</button>
+            <button class="chip active">Fri</button><button class="chip">Sat</button><button class="chip">Sun</button>
+          </div>
+          <div class="rg-note">Set once — repeats every week. Open or close any slot with one tap later.</div>
+        </div>
+
+        <div class="card rg-sec">
+          <div class="rg-toggle">
+            <div class="lbl2">Available for Duo Session<small>Two masters, one client — separate payments</small></div>
+            <div class="sw on" onclick="this.classList.toggle('on')"></div>
+          </div>
+        </div>
+
+        <div class="card rg-sec">
+          <div class="t">Payouts</div>
+          <div class="rg-note" style="margin-top:0">Bank details are entered securely on <b>Stripe</b> — MeSeat never sees or stores them. Tax form 1099 is handled by Stripe automatically.</div>
+          <button class="chip" style="margin-top:12px" disabled>Connect Stripe → (after verification)</button>
+        </div>
+
+        <button class="btn-primary" style="margin-top:18px" onclick="submitReg()">Submit application</button>
+        <div style="height:20px"></div>
+      </div>
+
+      <div class="rg-done" id="rg-done">
+        <div class="big">Application received.</div>
+        <div class="mid">
+          We're verifying your NYS license — usually under 24 hours.<br><br>
+          You'll get an email the moment your profile goes live.<br>
+          Welcome to MeSeat.
+        </div>
+        <button class="btn-primary" style="margin-top:30px" onclick="goTo('home')">Back to home</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ WORKS OVERLAY (карусель работ + Хочу так же) ════════════ -->
+  <div id="works-overlay" style="position:absolute; inset:0; z-index:80; background:rgba(43,31,22,.55); backdrop-filter:blur(6px); display:none; align-items:flex-end;">
+    <div style="background:var(--cashmere); border-radius:24px 24px 0 0; width:100%; padding:18px 0 100px; position:relative;">
+      <div style="width:44px; height:4px; border-radius:2px; background:rgba(43,31,22,.2); margin:0 auto 14px;"></div>
+      <button onclick="closeWorks()" style="position:absolute; top:14px; right:16px; background:var(--milk); border:1px solid rgba(43,31,22,.12); border-radius:50%; width:34px; height:34px; font-size:16px; cursor:pointer; color:var(--chocolate);">✕</button>
+      <div style="padding:0 20px 12px;">
+        <div class="eyebrow">Arina K. · Portfolio</div>
+        <div class="h-display" style="font-size:22px; margin-top:3px;">Tap a look you love</div>
+      </div>
+      <div id="works-strip" style="display:flex; gap:12px; overflow-x:auto; padding:4px 20px 8px; scrollbar-width:none;"></div>
+    </div>
+  </div>
+
+  <!-- ════════════ BOTTOM NAVIGATION ════════════ -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-target="home" onclick="goTo('home')">
+      <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      Home
+    </button>
+    <button class="nav-item" data-target="map" onclick="goTo('map')">
+      <svg viewBox="0 0 24 24"><path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z"/></svg>
+      Map
+    </button>
+    <button class="nav-item" data-target="calendar" onclick="goTo('calendar')">
+      <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
+      Calendar
+    </button>
+    <button class="nav-item" data-target="money" onclick="goTo('money')">
+      <svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+      Money
+    </button>
+    <button class="nav-item" data-target="clientprofile" onclick="goTo('clientprofile')">
+      <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+      Profile
+    </button>
+  </nav>
+
+</div><!-- /phone -->
+
+<script>
+  function goTo(name) {
+    document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+    var target = document.getElementById('screen-' + name);
+    if (target) { target.classList.add('active'); target.scrollTop = 0; }
+    document.querySelectorAll('.nav-item').forEach(function(n) {
+      n.classList.toggle('active', n.getAttribute('data-target') === name);
+    });
+  }
+
+  /* Tabs on master profile */
+  var tabs = document.getElementById('profile-tabs');
+  if (tabs) {
+    tabs.addEventListener('click', function(e) {
+      var btn = e.target.closest('.ms-tab-btn');
+      if (!btn) return;
+      Array.prototype.forEach.call(this.querySelectorAll('.ms-tab-btn'), function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+    });
+  }
+
+  /* Chips toggle (visual only) */
+  document.querySelectorAll('.chips-row').forEach(function(row) {
+    row.addEventListener('click', function(e) {
+      var chip = e.target.closest('.chip');
+      if (!chip) return;
+      row.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('active'); });
+      chip.classList.add('active');
+    });
+  });
+</script>
+
+
+<script>
+/* ═══════════ MeSeat state & logic (итерация 2) ═══════════ */
+var MS = {
+  lang: 'en',
+  booking: { service:'Gel Manicure', price:85, day:null, slot:null },
+  bookings: []
+};
+
+/* ── i18n (EN/ES/RU) ── */
+var DICT = {
+  myprofile: { en:'My profile', es:'Mi perfil', ru:'Мой профиль' },
+  hello:     { en:'Hello,', es:'Hola,', ru:'Привет,' },
+  reliable:  { en:'Reliable', es:'Confiable', ru:'Надёжный' },
+  of:        { en:'of', es:'de', ru:'из' },
+  tovip:     { en:'visits to VIP', es:'visitas a VIP', ru:'визитов до VIP' },
+  redeem:    { en:'Redeem perks →', es:'Canjear ventajas →', ru:'Обменять на бонусы →' },
+  streak:    { en:'Nail Streak', es:'Racha', ru:'Nail Streak' },
+  every3w:   { en:'Every 3 weeks · regular', es:'Cada 3 semanas · fiel', ru:'Каждые 3 недели · постоянная' },
+  stamps36:  { en:'3 of 6 stamps', es:'3 de 6 sellos', ru:'3 из 6 штампов' },
+  after3:    { en:'defined after 3+ visits', es:'tras 3+ visitas', ru:'после 3+ визитов' },
+  upcoming:  { en:'Upcoming', es:'Próximas', ru:'Предстоящие' },
+  noupcoming:{ en:'Nothing booked yet. Browse masters near you.', es:'Aún no hay reservas. Explora maestras cerca.', ru:'Пока ничего не забронировано. Посмотрите мастеров рядом.' },
+  history:   { en:'Visit history', es:'Historial', ru:'История визитов' },
+  again:     { en:'Book again', es:'Reservar de nuevo', ru:'Записаться снова' },
+  duobonus:  { en:'Duo Bonus', es:'Duo Bonus', ru:'Duo Bonus' },
+  invitetxt: { en:'Invite a friend — you both get perks', es:'Invita a una amiga — ambas ganan', ru:'Пригласите подругу — бонусы обеим' },
+  invite:    { en:'Invite', es:'Invitar', ru:'Пригласить' },
+  pick:      { en:'Pick a time', es:'Elige la hora', ru:'Выберите время' },
+  openslots: { en:'Open slots', es:'Horarios libres', ru:'Свободные окна' },
+  service:   { en:'Service', es:'Servicio', ru:'Услуга' },
+  total:     { en:'Total', es:'Total', ru:'Итого' },
+  confirm:   { en:'Confirm booking', es:'Confirmar reserva', ru:'Подтвердить запись' },
+  booked:    { en:"You're booked.", es:'Reserva confirmada.', ru:'Вы записаны.' },
+  holdnote:  { en:"Your card is on hold — you'll be charged after the service is complete.", es:'Tu tarjeta queda retenida — el cargo se hace al terminar el servicio.', ru:'На карте заморожена сумма — списание после завершения услуги.' },
+  repeat:    { en:'Repeat this visit every', es:'Repetir cada', ru:'Повторять визит каждые' },
+  done:      { en:'Done', es:'Listo', ru:'Готово' }
+};
+
+function setLang(l, btn) {
+  MS.lang = l;
+  if (btn) {
+    var row = btn.parentElement;
+    Array.prototype.forEach.call(row.querySelectorAll('.chip'), function(c){ c.classList.remove('active'); });
+    btn.classList.add('active');
+  }
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var k = el.getAttribute('data-i18n');
+    if (DICT[k] && DICT[k][l]) el.textContent = DICT[k][l];
+  });
+}
+
+/* ── Booking flow ── */
+var SLOTS = ['10:00 AM','11:30 AM','2:30 PM','5:00 PM'];
+var AVAIL_DAYS = [27,29,31];
+var TODAY = 25; /* July 25, 2026 */
+
+function startBooking(service, price) {
+  MS.booking = { service:service, price:price, day:null, slot:null };
+  document.getElementById('bk-svc-name').textContent = service;
+  document.getElementById('bk-svc-price').textContent = '$' + price;
+  document.getElementById('bk-step-cal').style.display = 'block';
+  document.getElementById('bk-done').style.display = 'none';
+  document.getElementById('bk-slots').style.display = 'none';
+  document.getElementById('bk-confirm').style.display = 'none';
+  buildGrid();
+  goTo('booking');
+}
+
+function buildGrid() {
+  var g = document.getElementById('bk-grid');
+  g.innerHTML = '';
+  ['M','T','W','T','F','S','S'].forEach(function(d){
+    var e = document.createElement('div'); e.className='bk-dow'; e.textContent=d; g.appendChild(e);
+  });
+  /* July 1, 2026 = Wednesday → 2 empty cells (Mon,Tue) */
+  for (var i=0;i<2;i++){ var e=document.createElement('div'); g.appendChild(e); }
+  for (var d=1; d<=31; d++){
+    var e = document.createElement('div');
+    e.className = 'bk-day';
+    var avail = AVAIL_DAYS.indexOf(d) >= 0;
+    if (d < TODAY) e.className += ' muted';
+    else if (avail) e.className += ' avail';
+    else e.className += ' muted';
+    e.innerHTML = d + '<span class="d"></span>';
+    if (avail && d >= TODAY) {
+      (function(day, el){
+        el.onclick = function(){ pickDay(day, el); };
+      })(d, e);
+    }
+    g.appendChild(e);
+  }
+}
+
+function pickDay(day, el) {
+  MS.booking.day = day;
+  document.querySelectorAll('#bk-grid .bk-day').forEach(function(x){ x.classList.remove('sel'); });
+  el.classList.add('sel');
+  var sc = document.getElementById('bk-slot-chips');
+  sc.innerHTML = '';
+  SLOTS.forEach(function(t){
+    var b = document.createElement('button');
+    b.className = 'chip'; b.textContent = t;
+    b.onclick = function(){ pickSlot(t, b); };
+    sc.appendChild(b);
+  });
+  document.getElementById('bk-slots').style.display = 'block';
+  document.getElementById('bk-confirm').style.display = 'none';
+}
+
+function pickSlot(t, btn) {
+  MS.booking.slot = t;
+  document.querySelectorAll('#bk-slot-chips .chip').forEach(function(c){ c.classList.remove('active'); });
+  btn.classList.add('active');
+  var b = MS.booking;
+  var tax = Math.round(b.price * 0.045 * 100) / 100;
+  var total = Math.round((b.price + tax) * 100) / 100;
+  document.getElementById('bk-sum-what').textContent = b.service + ' · Jul ' + b.day + ' · ' + t;
+  document.getElementById('bk-sum-price').textContent = '$' + b.price.toFixed(2);
+  document.getElementById('bk-sum-tax').textContent = '$' + tax.toFixed(2);
+  document.getElementById('bk-sum-total').textContent = '$' + total.toFixed(2);
+  var hold;
+  if (b.day - TODAY < 2) {
+    hold = 'Booking is within 48 hours — the full amount $' + total.toFixed(2) + ' is held now. Charged only after the service is complete.';
+  } else {
+    var h20 = Math.round(total * 0.2 * 100) / 100;
+    hold = '$' + h20.toFixed(2) + ' (20%) is held now. The rest is held 48h before your visit. Charged only after the service is complete.';
+  }
+  document.getElementById('bk-hold-note').textContent = hold;
+  document.getElementById('bk-confirm').style.display = 'block';
+}
+
+function confirmBooking() {
+  var b = MS.booking;
+  MS.bookings.push({ service:b.service, when:'Jul ' + b.day + ' · ' + b.slot, master:'Arina K.' });
+  document.getElementById('bk-done-what').innerHTML = b.service + ' · Jul ' + b.day + ' · ' + b.slot + '<br>Arina K. · Midtown';
+  document.getElementById('bk-step-cal').style.display = 'none';
+  document.getElementById('bk-done').style.display = 'block';
+  renderUpcoming();
+}
+
+function renderUpcoming() {
+  var box = document.getElementById('cp-upcoming');
+  if (!MS.bookings.length) return;
+  box.innerHTML = '';
+  MS.bookings.forEach(function(b){
+    var d = document.createElement('div');
+    d.className = 'card upc-item';
+    d.innerHTML = '<div class="t1">' + b.service + '</div><div class="t2">' + b.when + ' · ' + b.master + '</div>';
+    box.appendChild(d);
+  });
+}
+
+/* ── Works overlay: карусель + Хочу так же ── */
+var WORKS = [
+  { name:'Nude almond set', service:'Gel Manicure', price:85, g:'135deg,#E2D6C2,#C9B99F' },
+  { name:'Soft gel · milky', service:'Soft Gel Extensions', price:120, g:'135deg,#E8DECE,#CDBCA4' },
+  { name:'Minimal line art', service:'Nail Art · Custom Design', price:115, g:'135deg,#DFD2BE,#C4B199' },
+  { name:'Classic red', service:'Gel Manicure', price:85, g:'135deg,#E4D2C6,#C9A99A' }
+];
+
+function openWorks() {
+  var strip = document.getElementById('works-strip');
+  strip.innerHTML = '';
+  WORKS.forEach(function(w){
+    var c = document.createElement('div');
+    c.style.cssText = 'min-width:230px; border-radius:14px; overflow:hidden; background:var(--milk); border:1.5px solid rgba(43,31,22,.16); box-shadow:0 3px 14px rgba(43,31,22,.12);';
+    c.innerHTML =
+      '<div style="height:210px; background:linear-gradient(' + w.g + '); display:flex; align-items:center; justify-content:center;">' +
+        '<span style="font-family:var(--font-title); font-style:italic; font-size:15px; color:rgba(43,31,22,.4);">' + w.name + '</span>' +
+      '</div>' +
+      '<div style="padding:12px 14px;">' +
+        '<div style="font-size:12px; color:var(--muted); margin-bottom:9px;">' + w.service + '</div>' +
+        '<button class="btn-primary" style="padding:12px; font-size:14px;" onclick="closeWorks(); startBooking(\'' + w.service + '\', ' + w.price + ')">I want this — $' + w.price + '</button>' +
+      '</div>';
+    strip.appendChild(c);
+  });
+  document.getElementById('works-overlay').style.display = 'flex';
+}
+function closeWorks() {
+  document.getElementById('works-overlay').style.display = 'none';
+}
+
+/* фото на карточках карты открывают карусель работ */
+document.querySelectorAll('#screen-map .map-card .mcard-photo').forEach(function(p){
+  p.addEventListener('click', function(e){ e.stopPropagation(); openWorks(); });
+});
+/* тапы по услугам в профиле мастера ведут в запись */
+document.querySelectorAll('#screen-profile .ms-service-card').forEach(function(card){
+  card.addEventListener('click', function(){
+    var name = card.querySelector('.ms-service-name').textContent.trim();
+    var ptxt = card.querySelector('.ms-service-price').textContent.replace(/[^0-9]/g,'');
+    startBooking(name, parseInt(ptxt || '85', 10));
+  });
+});
+
+/* ── Master registration ── */
+function licFile(inp) {
+  if (inp.files && inp.files[0]) {
+    document.getElementById('rg-file-txt').textContent = '✓ ' + inp.files[0].name;
+    document.getElementById('rg-file-lbl').classList.add('done');
+  }
+}
+function submitReg() {
+  var lic = document.getElementById('rg-lic').value.trim();
+  var name = document.getElementById('rg-name').value.trim();
+  if (name.length < 2) { alert('Please enter your full name.'); return; }
+  if (lic.length < 5) { alert('Please enter a valid NYS license number — registration is impossible without it.'); return; }
+  document.getElementById('rg-form').style.display = 'none';
+  document.getElementById('rg-done').style.display = 'block';
+  var sc = document.querySelector('#screen-register');
+  if (sc) sc.scrollTop = 0;
+}
+</script>
+
+</body>
+</html>
