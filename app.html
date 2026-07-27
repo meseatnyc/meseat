@@ -231,17 +231,24 @@
         <div class="sect" style="margin-top:0" data-i="addservice">Add a service</div>
         <label data-i="svcname">Service name</label>
         <input type="text" id="ns-name" placeholder="Gel Manicure">
+        <label data-i="duration">Duration (min)</label>
         <div class="row2">
-          <div><label data-i="duration">Duration (min)</label><input type="number" id="ns-dur" value="60" min="15" step="15"></div>
-          <div><label data-i="price">Price ($)</label><input type="number" id="ns-price" value="85" min="0"></div>
+          <input type="number" id="ns-dur" value="60" min="5" step="5" data-ph="phfrom" placeholder="from">
+          <input type="number" id="ns-dur-to" min="5" step="5" data-ph="phto" placeholder="to — optional">
         </div>
+        <label data-i="price">Price ($)</label>
+        <div class="row2">
+          <input type="number" id="ns-price" value="85" min="0" data-ph="phfrom" placeholder="from">
+          <input type="number" id="ns-price-to" min="0" data-ph="phto" placeholder="to — optional">
+        </div>
+        <p class="note" data-i="rangenote">Leave "to" empty for a fixed price. Fill it for an "from–to" range — there is no upper cap, you decide it.</p>
         <button class="btn sec" onclick="addService()" data-i="addbtn">+ Add service</button>
       </div>
     </div>
 
     <div id="mt-schedule" class="hidden">
       <div class="card" id="sched-card"></div>
-      <button class="btn" onclick="saveSchedule()" data-i="saveschedule">Save schedule</button>
+      <button class="btn" id="btn-savesched" onclick="saveSchedule()" data-i="saveschedule">Save schedule</button>
     </div>
 
     <div id="mt-portfolio" class="hidden">
@@ -312,8 +319,12 @@ const D = {
  addservice:{en:'Add a service',ru:'Добавить услугу'},
  svcname:{en:'Service name',ru:'Название услуги'},
  duration:{en:'Duration (min)',ru:'Длительность (мин)'}, price:{en:'Price ($)',ru:'Цена ($)'},
+ phfrom:{en:'from',ru:'от'}, phto:{en:'to — optional',ru:'до — необязательно'},
+ minshort:{en:'min',ru:'мин'},
+ rangenote:{en:'Leave "to" empty for a fixed price. Fill it for an "from–to" range — there is no upper cap, you decide it.',ru:'Оставьте «до» пустым для фиксированной цены. Заполните — получится диапазон «от–до». Верхнего потолка нет, его задаёте вы.'},
  addbtn:{en:'+ Add service',ru:'+ Добавить услугу'},
  saveschedule:{en:'Save schedule',ru:'Сохранить график'},
+ saving:{en:'Saving…',ru:'Сохраняю…'},
  upwork:{en:'Upload a work photo',ru:'Загрузить фото работы'},
  linksvc:{en:'Link to service (for "I want this")',ru:'Привязать к услуге (для «Хочу так же»)'},
  upload:{en:'Upload',ru:'Загрузить'},
@@ -329,11 +340,14 @@ let L = 'en';
 function setLang(l, btn){ L=l;
   document.querySelectorAll('.lang-b').forEach(b=>b.classList.toggle('active', b.dataset.l===l));
   document.querySelectorAll('[data-i]').forEach(el=>{ const k=el.getAttribute('data-i'); if(D[k]&&D[k][l]) el.textContent=D[k][l]; });
+  document.querySelectorAll('[data-ph]').forEach(el=>{ const k=el.getAttribute('data-ph'); if(D[k]&&D[k][l]) el.placeholder=D[k][l]; });
   if (authMode) authTab(authMode);
 }
 function t(k){ return (D[k]&&D[k][L])||k; }
 function toast(msg){ const e=document.getElementById('toast'); e.textContent=msg; e.classList.add('show'); setTimeout(()=>e.classList.remove('show'), 2600); }
 function money(c){ return '$'+(c/100).toFixed(c%100?2:0); }
+function durText(s){ return (s.duration_to_min ? s.duration_min+'–'+s.duration_to_min : s.duration_min)+' '+t('minshort'); }
+function priceText(s){ return s.price_to_cents ? money(s.price_cents)+'–'+money(s.price_to_cents) : money(s.price_cents); }
 function esc(s){ return (s||'').replace(/[&<>"]/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
 
 /* ── views ── */
@@ -440,8 +454,8 @@ async function loadServices(){
   box.innerHTML=''; sel.innerHTML='<option value="">—</option>';
   (data||[]).forEach(s=>{
     const d=document.createElement('div'); d.className='svc';
-    d.innerHTML=`<div class="n">${esc(s.name)}<small>${s.duration_min} min</small></div>
-      <div style="display:flex;gap:8px;align-items:center"><span class="p">${money(s.price_cents)}</span>
+    d.innerHTML=`<div class="n">${esc(s.name)}<small>${durText(s)}</small></div>
+      <div style="display:flex;gap:8px;align-items:center"><span class="p">${priceText(s)}</span>
       <button class="btn sm danger" onclick="delService('${s.id}')">✕</button></div>`;
     box.appendChild(d);
     const o=document.createElement('option'); o.value=s.id; o.textContent=s.name; sel.appendChild(o);
@@ -452,10 +466,18 @@ async function addService(){
   const name=document.getElementById('ns-name').value.trim();
   const dur=parseInt(document.getElementById('ns-dur').value,10);
   const price=Math.round(parseFloat(document.getElementById('ns-price').value)*100);
-  if(!name||!dur||isNaN(price)){ toast('Fill name, duration, price'); return; }
-  const {error}=await db.from('services').insert({master_id:ME.id,name,duration_min:dur,price_cents:price});
+  if(!name||!dur||isNaN(price)){ toast(L==='ru'?'Заполните название, длительность, цену':'Fill name, duration, price'); return; }
+  // верхние границы — необязательны; пустое или «≤ от» = потолка нет
+  const durToRaw=document.getElementById('ns-dur-to').value;
+  const priceToRaw=document.getElementById('ns-price-to').value;
+  let durTo = durToRaw==='' ? null : parseInt(durToRaw,10);
+  let priceTo = priceToRaw==='' ? null : Math.round(parseFloat(priceToRaw)*100);
+  if(durTo!==null && (isNaN(durTo) || durTo<=dur)){ if(durToRaw!==''&&durTo<=dur){ toast(L==='ru'?'«До» по длительности должно быть больше «от».':'Duration "to" must be greater than "from".'); return; } durTo=null; }
+  if(priceTo!==null && (isNaN(priceTo) || priceTo<=price)){ if(priceToRaw!==''&&priceTo<=price){ toast(L==='ru'?'«До» по цене должно быть больше «от».':'Price "to" must be greater than "from".'); return; } priceTo=null; }
+  const {error}=await db.from('services').insert({master_id:ME.id,name,duration_min:dur,duration_to_min:durTo,price_cents:price,price_to_cents:priceTo});
   if(error){ toast('⚠ '+error.message); return; }
   document.getElementById('ns-name').value='';
+  document.getElementById('ns-dur-to').value=''; document.getElementById('ns-price-to').value='';
   toast('✓'); loadServices();
 }
 async function delService(id){ await db.from('services').delete().eq('id',id); loadServices(); }
@@ -474,18 +496,31 @@ async function loadScheduleUI(){
     card.appendChild(row);
   }
 }
+let savingSched=false;
 async function saveSchedule(){
-  await db.from('schedule').delete().eq('master_id',ME.id);
-  const rows=[];
-  document.querySelectorAll('.sched-on.active').forEach(b=>{
-    const d=b.dataset.d;
-    rows.push({ master_id:ME.id, weekday:parseInt(d,10),
-      start_time:document.querySelector(`[data-ds="${d}"]`).value,
-      end_time:document.querySelector(`[data-de="${d}"]`).value });
-  });
-  if(rows.length){ const {error}=await db.from('schedule').insert(rows);
-    if(error){ toast('⚠ '+error.message); return; } }
-  toast(L==='ru'?'График сохранён ✓':'Schedule saved ✓');
+  if(savingSched) return;                       // защита от двойного клика
+  savingSched=true;
+  const btn=document.getElementById('btn-savesched');
+  const label=btn.textContent; btn.disabled=true; btn.textContent=t('saving');
+  try{
+    // собираем строки ДО удаления — если валидация упадёт, старый график цел
+    const rows=[];
+    document.querySelectorAll('.sched-on.active').forEach(b=>{
+      const d=b.dataset.d;
+      const st=document.querySelector(`[data-ds="${d}"]`).value;
+      const en=document.querySelector(`[data-de="${d}"]`).value;
+      if(st && en && st<en) rows.push({ master_id:ME.id, weekday:parseInt(d,10), start_time:st, end_time:en });
+    });
+    const {error:delErr}=await db.from('schedule').delete().eq('master_id',ME.id);
+    if(delErr){ toast('⚠ '+delErr.message); return; }
+    if(rows.length){
+      const {error:insErr}=await db.from('schedule').insert(rows);
+      if(insErr){ toast('⚠ '+insErr.message); return; }
+    }
+    await loadScheduleUI();                       // перечитываем из БД — то, что видно, = то, что сохранено
+    toast(L==='ru'?'График сохранён ✓':'Schedule saved ✓');
+  }catch(e){ toast('⚠ '+e.message); }
+  finally{ savingSched=false; btn.disabled=false; btn.textContent=label; }
 }
 async function loadPortfolio(){
   const {data}=await db.from('portfolio').select('*').eq('master_id',ME.id).order('created_at',{ascending:false});
@@ -575,7 +610,7 @@ async function openMaster(m){
   const sb=document.getElementById('b-services'); sb.innerHTML='';
   B.services.forEach(s=>{
     const d=document.createElement('div'); d.className='svc'; d.onclick=()=>pickService(s,d);
-    d.innerHTML=`<div class="n">${esc(s.name)}<small>${s.duration_min} min</small></div><span class="p">${money(s.price_cents)}</span>`;
+    d.innerHTML=`<div class="n">${esc(s.name)}<small>${durText(s)}</small></div><span class="p">${priceText(s)}</span>`;
     sb.appendChild(d);
   });
   if(!B.services.length) sb.innerHTML='<span class="note">No services yet.</span>';
@@ -645,7 +680,7 @@ function fmtMin(m){ let h=Math.floor(m/60), mm=m%60; const ap=h>=12?'PM':'AM'; h
 function showConfirm(){
   document.getElementById('c-line1').textContent=B.service.name+' · '+B.master.pro_name;
   document.getElementById('c-line2').textContent=B.date+' · '+fmtMin(B.slot);
-  document.getElementById('c-price').textContent=money(B.service.price_cents);
+  document.getElementById('c-price').textContent=priceText(B.service);
   document.getElementById('b-confirm').classList.remove('hidden');
   document.getElementById('b-confirm').scrollIntoView({behavior:'smooth'});
 }
