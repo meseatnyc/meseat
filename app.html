@@ -120,6 +120,87 @@
   .cal-legend { display:flex; gap:16px; margin-top:12px; font-size:11px; color:var(--muted); }
   .cal-legend span { display:flex; align-items:center; gap:5px; }
 
+  /* ═══ PLANNER (Расписание) ═══ */
+  :root{ --terra:#BF7A5C; --terra-deep:#8A5540; --pl-closed:#DCD3C0; --pl-free:#BFD1BE; --plq:20px; }
+  .pl-modes{ display:flex; gap:22px; border-bottom:1px solid rgba(43,31,22,.12); margin-bottom:12px; }
+  .pl-modes button{ background:none; border:none; font-family:var(--ft); font-size:17px; color:rgba(43,31,22,.5); padding:0 2px 8px; cursor:pointer; }
+  .pl-modes button.active{ color:var(--chocolate); border-bottom:2px solid var(--gold); }
+  .pl-nav{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+  .pl-title{ font-family:var(--ft); font-size:21px; }
+  .pl-weekhead{ display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:8px; }
+  .pl-wd{ text-align:center; padding:6px 0 7px; border-radius:11px; cursor:pointer; user-select:none; border:1px solid transparent; }
+  .pl-wd small{ display:block; font-size:9.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+  .pl-wd span{ font-family:var(--ft); font-size:18px; }
+  .pl-wd.today span{ color:var(--gold); }
+  .pl-wd.sel{ background:#fff; border-color:rgba(196,160,48,.5); }
+  .pl-wd.off{ background:repeating-linear-gradient(-45deg,var(--pl-closed),var(--pl-closed) 4px,transparent 4px,transparent 8px); }
+  .pl-wd.off span{ color:var(--muted); text-decoration:line-through; }
+  .pl-hint{ font-size:11px; color:var(--muted); margin-bottom:8px; }
+  /* day */
+  .pl-day{ position:relative; }
+  .pl-hour{ display:flex; border-top:1.5px solid rgba(43,31,22,.28); }
+  .pl-hour .t{ width:46px; flex:none; font-size:11px; color:var(--muted); padding-top:2px; font-family:var(--ft); }
+  .pl-hour .slot{ flex:1; position:relative; height:calc(var(--plq)*4); }
+  .pl-q{ position:absolute; left:0; right:0; height:var(--plq); border-top:1px dashed rgba(43,31,22,.28); }
+  .pl-q[data-i="0"]{ border-top:none; }
+  .pl-q[data-i="2"]{ border-top:1px solid rgba(43,31,22,.22); }
+  .pl-q::after{ content:attr(data-m); position:absolute; left:-40px; top:-7px; font-size:9px; color:rgba(95,83,72,.7); font-family:var(--ft); }
+  .pl-q[data-i="0"]::after{ content:''; }
+  .pl-q.closed{ background:repeating-linear-gradient(-45deg,var(--pl-closed),var(--pl-closed) 5px,transparent 5px,transparent 10px); background-color:rgba(220,211,192,.4); }
+  .pl-q.free{ background:rgba(191,209,190,.32); cursor:pointer; }
+  .pl-appt{ position:absolute; left:0; right:0; border-radius:8px; padding:6px 9px; background:var(--terra); color:#fff; cursor:pointer; overflow:hidden; z-index:2; box-shadow:0 2px 5px rgba(138,85,64,.28); }
+  .pl-appt b{ display:block; font-size:13px; font-weight:500; }
+  .pl-appt i{ font-style:normal; font-size:10.5px; opacity:.92; }
+  .pl-appt.done{ background:var(--gold); color:var(--chocolate); }
+  .pl-appt.done i{ opacity:.8; }
+  /* week */
+  .pl-wkhead{ display:grid; grid-template-columns:38px repeat(7,1fr); gap:3px; margin-bottom:6px; }
+  .pl-wkhead div{ text-align:center; font-size:10px; color:var(--muted); font-family:var(--ft); cursor:pointer; }
+  .pl-wkhead div.today{ color:var(--gold); }
+  .pl-wkstack{ position:relative; }
+  .pl-wkbg{ display:grid; grid-template-columns:38px repeat(7,1fr); gap:3px; }
+  .pl-wkbg .wt{ font-size:10px; color:var(--muted); font-family:var(--ft); border-top:1px solid rgba(43,31,22,.14); padding-top:1px; }
+  .pl-wkbg .wc{ height:40px; background:#fff; border-top:1px solid rgba(43,31,22,.14); border-radius:2px; }
+  .pl-wkbg .wc.off{ background:repeating-linear-gradient(-45deg,var(--pl-closed),var(--pl-closed) 4px,#fff 4px,#fff 8px); }
+  .pl-wkov{ position:absolute; top:0; left:0; right:0; display:grid; grid-template-columns:38px repeat(7,1fr); gap:3px; pointer-events:none; }
+  .pl-wkcol{ position:relative; pointer-events:none; }
+  .pl-wkappt{ position:absolute; left:1px; right:1px; border-radius:5px; background:var(--terra); color:#fff; font-size:9.5px; line-height:1.2; padding:3px 4px; overflow:hidden; cursor:pointer; pointer-events:auto; box-shadow:0 1px 3px rgba(138,85,64,.3); }
+  .pl-wkappt.done{ background:var(--gold); color:var(--chocolate); }
+  /* month */
+  .pl-mdays{ display:grid; grid-template-columns:repeat(7,1fr); gap:5px; margin-bottom:6px; }
+  .pl-mdays div{ text-align:center; font-size:9.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+  .pl-mgrid{ display:grid; grid-template-columns:repeat(7,1fr); gap:5px; }
+  .pl-mcell{ background:#fff; border-radius:10px; padding:6px 4px 7px; display:flex; flex-direction:column; align-items:center; gap:5px; cursor:pointer; border:1.5px solid transparent; }
+  .pl-mcell span{ font-family:var(--ft); font-size:15px; line-height:1; }
+  .pl-mcell.off{ background:repeating-linear-gradient(-45deg,var(--pl-closed),var(--pl-closed) 4px,#fff 4px,#fff 8px); color:var(--muted); }
+  .pl-mcell.other{ opacity:.25; cursor:default; }
+  .pl-mcell.today{ border-color:var(--gold); }
+  .pl-mcell.sel{ border-color:var(--chocolate); }
+  .pl-daybar{ width:100%; height:22px; border-radius:3px; background:var(--pl-free); overflow:hidden; position:relative; }
+  .pl-daybar i{ position:absolute; left:0; right:0; background:var(--terra); display:block; }
+  .pl-mcell.full .pl-daybar{ background:var(--terra); }
+  .pl-mcell .cnt{ font-size:9.5px; color:var(--muted); line-height:1; }
+  .pl-legend{ display:flex; gap:14px; margin:10px 0 2px; font-size:10.5px; color:var(--muted); }
+  .pl-legend s{ display:inline-block; width:14px; height:8px; border-radius:2px; margin-right:5px; vertical-align:middle; text-decoration:none; }
+  .pl-drow{ display:flex; gap:10px; align-items:flex-start; padding:8px 0; border-top:1px solid rgba(43,31,22,.09); }
+  .pl-drow:first-child{ border-top:none; }
+  .pl-drow .dt{ font-size:11.5px; color:var(--muted); width:110px; flex:none; padding-top:2px; }
+  .pl-drow .dn{ font-size:13.5px; }
+  .pl-drow .dsvc{ font-size:11px; color:var(--muted); }
+  .pl-drow.gap .dn{ color:var(--terra-deep); }
+  .pl-pill{ display:inline-block; font-size:10px; padding:2px 8px; border-radius:999px; background:var(--pl-free); color:#3E4A38; margin-left:6px; }
+  /* sheet */
+  .pl-veil{ position:fixed; inset:0; background:rgba(43,31,22,.35); opacity:0; pointer-events:none; transition:.2s; z-index:90; }
+  .pl-veil.open{ opacity:1; pointer-events:auto; }
+  .pl-sheet{ position:fixed; left:0; right:0; bottom:0; max-width:560px; margin:0 auto; background:var(--milk); border-radius:20px 20px 0 0; padding:10px 20px 28px; transform:translateY(105%); transition:transform .25s ease; box-shadow:0 -6px 24px rgba(43,31,22,.2); z-index:91; }
+  .pl-sheet.open{ transform:translateY(0); }
+  .pl-grip{ width:44px; height:4px; border-radius:2px; background:var(--pl-closed); margin:4px auto 14px; }
+  .pl-sheet h2{ font-family:var(--ft); font-weight:400; font-size:22px; margin-bottom:2px; }
+  .pl-sheet .sub{ margin-bottom:12px; }
+  .pl-actions{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .pl-actions .btn{ margin-top:0; padding:12px; font-size:13.5px; }
+  .pl-actions .btn.full{ grid-column:1/-1; }
+
   /* revenue */
   .rev-big { font-family:var(--ft); font-size:42px; line-height:1.05; }
   .rev-cap { font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-top:4px; }
@@ -267,6 +348,7 @@
       <button class="tab" data-t="services" onclick="mTab('services',this)" data-i="tservices">Services</button>
       <button class="tab" data-t="schedule" onclick="mTab('schedule',this)" data-i="tschedule">Schedule</button>
       <button class="tab" data-t="calendar" onclick="mTab('calendar',this)" data-i="tcalendar">Calendar</button>
+      <button class="tab" data-t="planner" onclick="mTab('planner',this)" data-i="tplanner">Planner</button>
       <button class="tab" data-t="revenue" onclick="mTab('revenue',this)" data-i="trevenue">My Revenue</button>
       <button class="tab" data-t="portfolio" onclick="mTab('portfolio',this)" data-i="tportfolio">Portfolio</button>
       <button class="tab" data-t="bookings" onclick="mTab('bookings',this)" data-i="tbookings">Bookings</button>
@@ -342,6 +424,26 @@
         <div id="cal-day-list"></div>
       </div>
     </div>
+
+    <!-- ── PLANNER (Расписание) ── -->
+    <div id="mt-planner" class="hidden">
+      <div class="card">
+        <div class="pl-modes">
+          <button data-m="day" class="active" onclick="plMode('day')" data-i="plday">Day</button>
+          <button data-m="week" onclick="plMode('week')" data-i="plweek">Week</button>
+          <button data-m="month" onclick="plMode('month')" data-i="plmonth">Month</button>
+        </div>
+        <div class="pl-nav">
+          <button class="chip sm" onclick="plMove(-1)">←</button>
+          <div class="pl-title" id="pl-title"></div>
+          <button class="chip sm" onclick="plMove(1)">→</button>
+        </div>
+        <div id="pl-body"><span class="spin"></span></div>
+      </div>
+      <div class="card hidden" id="pl-daypanel"></div>
+    </div>
+    <div class="pl-veil" id="pl-veil" onclick="plHide()"></div>
+    <div class="pl-sheet" id="pl-sheet"></div>
 
     <!-- ── MY REVENUE ── -->
     <div id="mt-revenue" class="hidden">
@@ -494,6 +596,34 @@ const D = {
  pickadaynote:{en:'Tap a day to see what it holds.',ru:'Нажмите на день, чтобы увидеть записи.',es:'Toca un día para ver sus citas.'},
  freeday:{en:'Working day — no bookings yet. Your slots are open.',ru:'Рабочий день — записей пока нет. Окна открыты.',es:'Día laboral — sin citas aún. Tus horarios están abiertos.'},
  offday:{en:'Day off.',ru:'Выходной.',es:'Día libre.'},
+ /* planner */
+ tplanner:{en:'Planner',ru:'Расписание',es:'Agenda'},
+ plday:{en:'Day',ru:'День',es:'Día'}, plweek:{en:'Week',ru:'Неделя',es:'Semana'}, plmonth:{en:'Month',ru:'Месяц',es:'Mes'},
+ plhint:{en:'Tap a date — day off · tap free time — close hours',ru:'Тап по дате — выходной · тап по свободному времени — закрыть часы',es:'Toca una fecha — día libre · toca tiempo libre — cerrar horas'},
+ plbusy:{en:'booked',ru:'занято',es:'ocupado'}, plfree:{en:'free',ru:'свободно',es:'libre'}, ploff:{en:'day off',ru:'выходной',es:'libre'},
+ plfreeslot:{en:'Free',ru:'Свободно',es:'Libre'},
+ plbookings:{en:'bookings',ru:'записей',es:'citas'}, plfreeh:{en:'free',ru:'свободно',es:'libre'}, plnogaps:{en:'no gaps',ru:'нет окон',es:'sin huecos'},
+ plopenday:{en:'Open this day',ru:'Открыть день',es:'Abrir el día'},
+ plclosetitle:{en:'Close time',ru:'Закрыть время',es:'Cerrar tiempo'},
+ plclosehour:{en:'Close this hour',ru:'Закрыть этот час',es:'Cerrar esta hora'},
+ plclosemorn:{en:'Close morning (until 12:00)',ru:'Закрыть утро (до 12:00)',es:'Cerrar la mañana (hasta 12:00)'},
+ plcloseeve:{en:'Close until end of day',ru:'Закрыть до конца дня',es:'Cerrar hasta el final del día'},
+ plopentime:{en:'Reopen this time',ru:'Открыть это время',es:'Reabrir este tiempo'},
+ plclosed:{en:'Closed ✓',ru:'Закрыто ✓',es:'Cerrado ✓'}, plreopened:{en:'Reopened ✓',ru:'Открыто ✓',es:'Reabierto ✓'},
+ pldayoffq:{en:'Day is working now',ru:'День сейчас рабочий',es:'El día es laboral'}, pldayoffnow:{en:'Day off now',ru:'Сейчас выходной',es:'Ahora es día libre'},
+ plmakeoff:{en:'Make it a day off',ru:'Сделать выходным',es:'Hacer día libre'}, plmakework:{en:'Make it a working day',ru:'Сделать рабочим',es:'Hacer día laboral'},
+ plnotinsched:{en:'This weekday is off in your Schedule — change it there to work on it.',ru:'Этот день недели выходной по Графику — чтобы работать, измените График.',es:'Este día de la semana está libre en tu Horario — cámbialo ahí.'},
+ plisoff:{en:'Day off — clients see no slots.',ru:'Выходной — клиенты не увидят окон.',es:'Día libre — las clientas no ven horarios.'},
+ plisworking:{en:'Working day again.',ru:'День снова рабочий.',es:'Día laboral de nuevo.'},
+ plclient:{en:'Client',ru:'Клиент',es:'Clienta'},
+ plmarkdone:{en:'Mark completed',ru:'Завершить визит',es:'Marcar completada'},
+ plnoshow:{en:'No-show',ru:'Неявка',es:'Ausencia'},
+ plcancel:{en:'Cancel booking',ru:'Отменить запись',es:'Cancelar cita'},
+ plclose:{en:'Close',ru:'Закрыть',es:'Cerrar'},
+ plcompleted:{en:'Completed · added to revenue',ru:'Визит завершён · в доход',es:'Completada · a ingresos'},
+ plcancelled:{en:'Cancelled',ru:'Запись отменена',es:'Cita cancelada'},
+ plblock:{en:'Blocked',ru:'Закрыто',es:'Cerrado'},
+ plneedtable:{en:'Blocked-time table missing — run the SQL from the setup note.',ru:'Нет таблицы blocked_slots — выполните SQL из инструкции.',es:'Falta la tabla blocked_slots — ejecuta el SQL.'},
  /* revenue */
  trevenue:{en:'My Revenue',ru:'Доход',es:'Mis ingresos'},
  pweek:{en:'This week',ru:'Эта неделя',es:'Esta semana'}, pmonth:{en:'This month',ru:'Этот месяц',es:'Este mes'},
@@ -571,6 +701,7 @@ function setLang(l, btn){ L=l;
   // перерисовываем то, что построено скриптом
   if(ME && MYPROF && MYPROF.role==='master'){
     if(!document.getElementById('mt-calendar').classList.contains('hidden')) renderCal();
+    if(!document.getElementById('mt-planner').classList.contains('hidden')) renderPlanner();
     if(!document.getElementById('mt-revenue').classList.contains('hidden')) loadRevenue();
     if(!document.getElementById('mt-chat').classList.contains('hidden')) renderChat();
     if(!document.getElementById('mt-services').classList.contains('hidden')) loadServices();
@@ -719,9 +850,10 @@ async function loadMasterDash(){
 function mTab(name, btn){
   document.querySelectorAll('#v-master .tab').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  ['profile','services','schedule','calendar','revenue','portfolio','bookings','chat'].forEach(x=>
+  ['profile','services','schedule','calendar','planner','revenue','portfolio','bookings','chat'].forEach(x=>
     document.getElementById('mt-'+x).classList.toggle('hidden', x!==name));
   if(name==='calendar') renderCal();
+  if(name==='planner') renderPlanner();
   if(name==='revenue') loadRevenue();
   if(name==='chat') renderChat();
 }
@@ -873,7 +1005,7 @@ async function loadMasterBookings(){
     box.appendChild(d);
   });
 }
-async function setBk(id,status){ await db.from('bookings').update({status}).eq('id',id); loadMasterBookings(); if(!document.getElementById('mt-calendar').classList.contains('hidden')) renderCal(); }
+async function setBk(id,status){ await db.from('bookings').update({status}).eq('id',id); loadMasterBookings(); if(!document.getElementById('mt-calendar').classList.contains('hidden')) renderCal(); if(!document.getElementById('mt-planner').classList.contains('hidden')) renderPlanner(); }
 
 /* ═══════════ CALENDAR ═══════════ */
 let CAL = { y:null, m:null, sel:null, bookings:[], workdays:new Set() };
@@ -937,6 +1069,229 @@ function showCalDay(dIso){
   });
 }
 function iso(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+
+/* ═══════════ PLANNER · Расписание (День / Неделя / Месяц) ═══════════ */
+/* Данные: schedule (рабочие часы по дням недели), bookings (записи), blocked_slots (выходные и закрытые часы), profiles (имена клиентов) */
+const PL = { mode:'day', date:null, sched:[], blocks:[], bks:[], names:{}, sel:null, hasBlocks:true };
+const PLQ = 20;                                 // px за 15 минут (совпадает с --plq)
+
+function plMode(m){ PL.mode=m; document.querySelectorAll('.pl-modes button').forEach(b=>b.classList.toggle('active',b.dataset.m===m)); renderPlanner(); }
+function plMove(d){
+  const dt=plD(PL.date);
+  if(PL.mode==='day') dt.setDate(dt.getDate()+d);
+  else if(PL.mode==='week') dt.setDate(dt.getDate()+7*d);
+  else { dt.setDate(1); dt.setMonth(dt.getMonth()+d); }
+  PL.date=iso(dt); PL.sel=null; renderPlanner();
+}
+function plD(s){ const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); }
+function plMonday(dt){ const x=new Date(dt); x.setDate(x.getDate()-((x.getDay()+6)%7)); return x; }
+function plRange(){
+  const dt=plD(PL.date);
+  if(PL.mode==='day') return [PL.date,PL.date];
+  if(PL.mode==='week'){ const a=plMonday(dt), b=new Date(a); b.setDate(a.getDate()+6); return [iso(a),iso(b)]; }
+  const a=new Date(dt.getFullYear(),dt.getMonth(),1), b=new Date(dt.getFullYear(),dt.getMonth()+1,0); return [iso(a),iso(b)];
+}
+function plWin(dateIso){                         // рабочее окно дня [startMin,endMin] или null
+  const wd=plD(dateIso).getDay();
+  const r=PL.sched.find(x=>x.weekday===wd);
+  if(!r) return null;
+  if(PL.blocks.some(b=>b.date===dateIso&&b.kind==='dayoff')) return null;
+  return [toMin(r.start_time),toMin(r.end_time)];
+}
+function plDayBlocks(dateIso){ return PL.blocks.filter(b=>b.date===dateIso&&b.kind==='block').map(b=>[toMin(b.start_time),toMin(b.end_time)]); }
+function plDayBks(dateIso){ return PL.bks.filter(b=>b.date===dateIso&&!['cancelled_client','cancelled_master'].includes(b.status)).sort((a,b)=>a.start_time.localeCompare(b.start_time)); }
+function plName(b){ return PL.names[b.client_id]||t('plclient'); }
+function plHM(m){ return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0'); }
+
+async function plLoad(){
+  const [a,b]=plRange();
+  const qs=[
+    db.from('schedule').select('*').eq('master_id',ME.id),
+    db.from('bookings').select('*, services(name,duration_min)').eq('master_id',ME.id).gte('date',a).lte('date',b),
+    db.from('blocked_slots').select('*').eq('master_id',ME.id).gte('date',a).lte('date',b)
+  ];
+  const [r1,r2,r3]=await Promise.all(qs);
+  PL.sched=r1.data||[]; PL.bks=r2.data||[];
+  if(r3.error){ PL.hasBlocks=false; PL.blocks=[]; } else { PL.hasBlocks=true; PL.blocks=r3.data||[]; }
+  const ids=[...new Set(PL.bks.map(x=>x.client_id).filter(Boolean))].filter(id=>!PL.names[id]);
+  if(ids.length){ const {data}=await db.from('profiles').select('id,full_name').in('id',ids); (data||[]).forEach(p=>PL.names[p.id]=p.full_name); }
+}
+async function renderPlanner(){
+  if(!PL.date) PL.date=iso(new Date());
+  document.getElementById('pl-body').innerHTML='<span class="spin"></span>';
+  document.getElementById('pl-daypanel').classList.add('hidden');
+  await plLoad();
+  if(!PL.hasBlocks) toast(t('plneedtable'));
+  if(PL.mode==='day') plRenderDay(); else if(PL.mode==='week') plRenderWeek(); else plRenderMonth();
+}
+
+/* ── ДЕНЬ ── */
+function plRenderDay(){
+  const dt=plD(PL.date), mon=plMonday(dt), todayIso=iso(new Date());
+  document.getElementById('pl-title').textContent=MONTHS[L][dt.getMonth()]+' '+dt.getFullYear();
+  let h='<div class="pl-weekhead">';
+  for(let i=0;i<7;i++){ const d=new Date(mon); d.setDate(mon.getDate()+i); const di=iso(d);
+    h+=`<div class="pl-wd ${di===PL.date?'sel':''} ${di===todayIso?'today':''} ${plWin(di)?'':'off'}" onclick="plDayOffSheet('${di}')"><small>${DAYS[L][d.getDay()]}</small><span>${d.getDate()}</span></div>`; }
+  h+='</div><div class="pl-hint">'+t('plhint')+'</div>';
+  const win=plWin(PL.date);
+  const allWins=PL.sched.map(r=>[toMin(r.start_time),toMin(r.end_time)]);
+  const h0=Math.floor((allWins.length?Math.min(...allWins.map(w=>w[0])):600)/60), h1=Math.ceil((allWins.length?Math.max(...allWins.map(w=>w[1])):1140)/60);
+  const blocks=plDayBlocks(PL.date), bks=plDayBks(PL.date);
+  const occ=bks.map(b=>{ const st=toMin(b.start_time); return [st, st+(b.services?.duration_min||60)]; });
+  h+='<div class="pl-day">';
+  for(let hh=h0; hh<h1; hh++){
+    h+=`<div class="pl-hour"><div class="t">${hh}:00</div><div class="slot">`;
+    for(let i=0;i<4;i++){ const m=hh*60+i*15;
+      const inWin=win&&m>=win[0]&&m<win[1];
+      const blocked=blocks.some(([a,b])=>m>=a&&m<b);
+      const busy=occ.some(([a,b])=>m>=a&&m<b);
+      const cls=(!inWin||blocked)?'closed':(busy?'':'free');
+      const click=(inWin)?`onclick="plCloseSheet('${PL.date}',${hh})"`:'';
+      h+=`<div class="pl-q ${cls}" data-i="${i}" data-m="${i?':'+String(i*15).padStart(2,'0'):''}" style="top:${i*PLQ}px" ${click}></div>`; }
+    bks.filter(b=>Math.floor(toMin(b.start_time)/60)===hh).forEach(b=>{
+      const st=toMin(b.start_time), dur=b.services?.duration_min||60;
+      h+=`<div class="pl-appt ${b.status==='completed'?'done':''}" style="top:${((st%60)/15)*PLQ}px;height:${(dur/15)*PLQ-4}px" onclick="event.stopPropagation();plApptSheet('${b.id}')"><b>${esc(plName(b))}</b><i>${esc(b.services?.name||'')} · ${fmtMin(st)}–${fmtMin(st+dur)}</i></div>`; });
+    h+='</div></div>';
+  }
+  h+='</div>';
+  document.getElementById('pl-body').innerHTML=h;
+}
+
+/* ── НЕДЕЛЯ ── */
+function plRenderWeek(){
+  const dt=plD(PL.date), mon=plMonday(dt), todayIso=iso(new Date());
+  const sun=new Date(mon); sun.setDate(mon.getDate()+6);
+  document.getElementById('pl-title').textContent=mon.getDate()+' – '+sun.getDate()+' '+MONTHS[L][sun.getMonth()];
+  const allWins=PL.sched.map(r=>[toMin(r.start_time),toMin(r.end_time)]);
+  const h0=Math.floor((allWins.length?Math.min(...allWins.map(w=>w[0])):600)/60), h1=Math.ceil((allWins.length?Math.max(...allWins.map(w=>w[1])):1140)/60);
+  const ROW=40;
+  const days=[]; for(let i=0;i<7;i++){ const d=new Date(mon); d.setDate(mon.getDate()+i); days.push(d); }
+  let h='<div class="pl-wkhead"><div></div>'+days.map(d=>`<div class="${iso(d)===todayIso?'today':''}" onclick="PL.date='${iso(d)}';plMode('day')">${DAYS[L][d.getDay()]} ${d.getDate()}</div>`).join('')+'</div>';
+  h+='<div class="pl-wkstack"><div class="pl-wkbg">';
+  for(let hh=h0; hh<h1; hh++){ h+=`<div class="wt">${hh}:00</div>`;
+    days.forEach(d=>{ const di=iso(d), win=plWin(di); const m=hh*60;
+      const off=!win||m<win[0]||m>=win[1]||plDayBlocks(di).some(([a,b])=>m>=a&&m<b);
+      h+=`<div class="wc ${off?'off':''}"></div>`; }); }
+  h+='</div><div class="pl-wkov"><div></div>';
+  days.forEach(d=>{ const di=iso(d);
+    h+=`<div class="pl-wkcol" style="height:${(h1-h0)*ROW}px">`;
+    plDayBks(di).forEach(b=>{ const st=toMin(b.start_time), dur=b.services?.duration_min||60;
+      h+=`<div class="pl-wkappt ${b.status==='completed'?'done':''}" style="top:${(st-h0*60)/60*ROW}px;height:${dur/60*ROW-2}px" onclick="PL.date='${di}';plMode('day')">${esc(plName(b).split(' ')[0])}</div>`; });
+    h+='</div>'; });
+  h+='</div></div>';
+  document.getElementById('pl-body').innerHTML=h;
+}
+
+/* ── МЕСЯЦ ── */
+function plRenderMonth(){
+  const dt=plD(PL.date), y=dt.getFullYear(), m=dt.getMonth(), last=new Date(y,m+1,0).getDate(), todayIso=iso(new Date());
+  document.getElementById('pl-title').textContent=MONTHS[L][m]+' '+y;
+  let h='<div class="pl-mdays">'+[1,2,3,4,5,6,0].map(d=>`<div>${DAYS[L][d]}</div>`).join('')+'</div>';
+  h+=`<div class="pl-legend"><span><s style="background:var(--terra)"></s>${t('plbusy')}</span><span><s style="background:var(--pl-free)"></s>${t('plfree')}</span><span><s style="background:repeating-linear-gradient(-45deg,#DCD3C0,#DCD3C0 3px,#fff 3px,#fff 6px)"></s>${t('ploff')}</span></div>`;
+  h+='<div class="pl-mgrid">';
+  const shift=(new Date(y,m,1).getDay()+6)%7;
+  for(let i=0;i<shift;i++) h+='<div class="pl-mcell other"></div>';
+  for(let d=1; d<=last; d++){ const di=iso(new Date(y,m,d)), win=plWin(di);
+    if(!win){ h+=`<div class="pl-mcell off ${di===todayIso?'today':''} ${PL.sel===di?'sel':''}" onclick="plPickDay('${di}')"><span>${d}</span></div>`; continue; }
+    const total=win[1]-win[0], bks=plDayBks(di), blocks=plDayBlocks(di);
+    let busy=0; const bars=bks.map(b=>{ const st=toMin(b.start_time), dur=b.services?.duration_min||60; busy+=dur;
+      return `<i style="top:${(st-win[0])/total*100}%;height:${dur/total*100}%"></i>`; }).join('')
+      + blocks.map(([a,b])=>`<i style="top:${(a-win[0])/total*100}%;height:${(b-a)/total*100}%;background:var(--pl-closed)"></i>`).join('');
+    const full=busy>=total-15;
+    h+=`<div class="pl-mcell ${full?'full':''} ${di===todayIso?'today':''} ${PL.sel===di?'sel':''}" onclick="plPickDay('${di}')"><span>${d}</span><div class="pl-daybar">${bars}</div><div class="cnt">${bks.length}</div></div>`;
+  }
+  h+='</div>';
+  document.getElementById('pl-body').innerHTML=h;
+  if(PL.sel) plDayPanel(PL.sel);
+}
+function plPickDay(di){ PL.sel=di; plRenderMonth(); }
+function plDayPanel(di){
+  const p=document.getElementById('pl-daypanel'); p.classList.remove('hidden');
+  const dt=plD(di), win=plWin(di), bks=plDayBks(di);
+  let h=`<div class="sect" style="margin-top:0">${WDFULL[L][dt.getDay()]}, ${dt.getDate()} ${MONTHS[L][dt.getMonth()]}</div>`;
+  if(!win){ h+=`<p class="note">${t('offday')}</p>`; p.innerHTML=h; return; }
+  let cursor=win[0], rows='', busy=0;
+  const gap=(a,b)=>`<div class="pl-drow gap"><div class="dt">${fmtMin(a)}–${fmtMin(b)}</div><div><div class="dn">${t('plfreeslot')}<span class="pl-pill">${b-a} ${t('minshort')}</span></div></div></div>`;
+  bks.forEach(b=>{ const st=toMin(b.start_time), dur=b.services?.duration_min||60; busy+=dur;
+    if(st-cursor>=15) rows+=gap(cursor,st);
+    rows+=`<div class="pl-drow" onclick="plApptSheet('${b.id}')" style="cursor:pointer"><div class="dt">${fmtMin(st)}–${fmtMin(st+dur)}</div><div><div class="dn">${esc(plName(b))}</div><div class="dsvc">${esc(b.services?.name||'')} · ${money(b.price_cents)}</div></div></div>`;
+    cursor=Math.max(cursor,st+dur); });
+  if(win[1]-cursor>=15) rows+=gap(cursor,win[1]);
+  const freeMin=win[1]-win[0]-busy;
+  h+=`<p class="note" style="margin-top:0">${bks.length} ${t('plbookings')} · ${freeMin>0?(t('plfreeh')+' '+(freeMin/60).toFixed(1).replace('.0','')+' h'):t('plnogaps')}</p>${rows}`;
+  h+=`<button class="btn sec" onclick="PL.date='${di}';plMode('day')">${t('plopenday')}</button>`;
+  p.innerHTML=h;
+}
+
+/* ── ШТОРКИ ── */
+function plShow(html){ document.getElementById('pl-sheet').innerHTML='<div class="pl-grip"></div>'+html; document.getElementById('pl-veil').classList.add('open'); document.getElementById('pl-sheet').classList.add('open'); }
+function plHide(){ document.getElementById('pl-veil').classList.remove('open'); document.getElementById('pl-sheet').classList.remove('open'); }
+
+function plApptSheet(id){
+  const b=PL.bks.find(x=>x.id===id); if(!b) return;
+  const st=toMin(b.start_time), dur=b.services?.duration_min||60;
+  const dt=plD(b.date);
+  plShow(`<h2>${esc(plName(b))}</h2>
+    <p class="sub">${esc(b.services?.name||'')} · ${fmtMin(st)}–${fmtMin(st+dur)} · ${money(b.price_cents)}<br>${WDFULL[L][dt.getDay()]}, ${dt.getDate()} ${MONTHS[L][dt.getMonth()]} · <span class="status ${b.status}">${t('st_'+b.status)}</span></p>
+    <div class="pl-actions">
+      ${b.status==='confirmed'?`<button class="btn full" onclick="plSetBk('${b.id}','completed')">${t('plmarkdone')}</button>
+      <button class="btn sec" onclick="plSetBk('${b.id}','no_show')">${t('plnoshow')}</button>
+      <button class="btn danger" onclick="plSetBk('${b.id}','cancelled_master')">${t('plcancel')}</button>`:''}
+      <button class="btn sec full" onclick="plHide()">${t('plclose')}</button>
+    </div>`);
+}
+async function plSetBk(id,status){
+  const {error}=await db.from('bookings').update({status}).eq('id',id);
+  plHide(); if(error){ toast('⚠ '+error.message); return; }
+  toast(status==='completed'?t('plcompleted'):status==='cancelled_master'?t('plcancelled'):t('st_no_show'));
+  renderPlanner(); loadMasterBookings();
+}
+
+function plDayOffSheet(di){
+  PL.date=di;
+  const dt=plD(di), wd=dt.getDay();
+  const inSched=PL.sched.some(x=>x.weekday===wd);
+  const isOff=PL.blocks.some(b=>b.date===di&&b.kind==='dayoff');
+  const title=`${WDFULL[L][wd]}, ${dt.getDate()} ${MONTHS[L][dt.getMonth()]}`;
+  if(!inSched){ plShow(`<h2>${title}</h2><p class="sub">${t('plnotinsched')}</p><div class="pl-actions"><button class="btn sec full" onclick="plHide()">${t('plclose')}</button></div>`); return; }
+  plShow(`<h2>${title}</h2><p class="sub">${isOff?t('pldayoffnow'):t('pldayoffq')}</p>
+    <div class="pl-actions">
+      <button class="btn full" onclick="plToggleDayOff('${di}',${isOff})">${isOff?t('plmakework'):t('plmakeoff')}</button>
+      <button class="btn sec full" onclick="plHide();renderPlanner()">${t('plclose')}</button>
+    </div>`);
+}
+async function plToggleDayOff(di,isOff){
+  let error;
+  if(isOff) ({error}=await db.from('blocked_slots').delete().eq('master_id',ME.id).eq('date',di).eq('kind','dayoff'));
+  else ({error}=await db.from('blocked_slots').insert({master_id:ME.id,date:di,kind:'dayoff'}));
+  plHide(); if(error){ toast('⚠ '+error.message); return; }
+  toast(isOff?t('plisworking'):t('plisoff')); renderPlanner();
+}
+
+function plCloseSheet(di,hh){
+  const win=plWin(di); if(!win) return;
+  const isClosed=plDayBlocks(di).some(([a,b])=>hh*60>=a&&hh*60<b);
+  plShow(`<h2>${t('plclosetitle')}</h2><p class="sub">${fmtMin(hh*60)}–${fmtMin(hh*60+60)}</p>
+    <div class="pl-actions">
+      ${isClosed?`<button class="btn full" onclick="plReopen('${di}',${hh*60},${hh*60+60})">${t('plopentime')}</button>`:
+      `<button class="btn full" onclick="plBlock('${di}',${hh*60},${hh*60+60})">${t('plclosehour')}</button>
+       <button class="btn sec" onclick="plBlock('${di}',${win[0]},${Math.min(720,win[1])})">${t('plclosemorn')}</button>
+       <button class="btn sec" onclick="plBlock('${di}',${hh*60},${win[1]})">${t('plcloseeve')}</button>`}
+      <button class="btn sec full" onclick="plHide()">${t('plclose')}</button>
+    </div>`);
+}
+async function plBlock(di,a,b){
+  if(b<=a){ plHide(); return; }
+  const {error}=await db.from('blocked_slots').insert({master_id:ME.id,date:di,kind:'block',start_time:plHM(a),end_time:plHM(b)});
+  plHide(); if(error){ toast('⚠ '+error.message); return; }
+  toast(t('plclosed')); renderPlanner();
+}
+async function plReopen(di,a,b){
+  const ids=PL.blocks.filter(x=>x.date===di&&x.kind==='block'&&toMin(x.start_time)<b&&toMin(x.end_time)>a).map(x=>x.id);
+  const {error}=await db.from('blocked_slots').delete().in('id',ids);
+  plHide(); if(error){ toast('⚠ '+error.message); return; }
+  toast(t('plreopened')); renderPlanner();
+}
 
 /* ═══════════ MY REVENUE ═══════════ */
 let REVP='week';
@@ -1119,6 +1474,10 @@ async function pickDay(iso, wd, btn){
   const {data:booked}=await db.from('bookings').select('start_time, service_id, services(duration_min)')
     .eq('master_id',B.master.id).eq('date',iso).neq('status','cancelled_client').neq('status','cancelled_master');
   const busy=(booked||[]).map(b=>{ const st=toMin(b.start_time); return [st, st+(b.services?.duration_min||60)]; });
+  // закрытые мастером часы и выходные (blocked_slots) — тоже занято; если таблицы нет, просто пропускаем
+  const {data:blk}=await db.from('blocked_slots').select('*').eq('master_id',B.master.id).eq('date',iso);
+  if((blk||[]).some(x=>x.kind==='dayoff')){ grid.innerHTML='<span class="note">'+t('noslots')+'</span>'; return; }
+  (blk||[]).filter(x=>x.kind==='block').forEach(x=>busy.push([toMin(x.start_time),toMin(x.end_time)]));
   const dur=B.service.duration_min;
   const windows=B.schedule.filter(r=>r.weekday===wd);
   const slots=[];
