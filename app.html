@@ -13,6 +13,7 @@
     --milk: #FCFAF6; --muted: #5F5348; --olive: #8A9B6E; --red: #B96A5B;
     --ft: 'Cormorant Garamond', Georgia, serif;
     --fu: 'Jost', sans-serif;
+    --fs: -apple-system, BlinkMacSystemFont, system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
     --border: 1.5px solid rgba(43,31,22,.16);
     --shadow: 0 3px 14px rgba(43,31,22,.10);
   }
@@ -121,84 +122,100 @@
   .cal-legend span { display:flex; align-items:center; gap:5px; }
 
   /* ═══ PLANNER (Расписание) ═══ */
-  :root{ --terra:#BF7A5C; --terra-deep:#8A5540; --pl-closed:#DCD3C0; --pl-free:#BFD1BE; --plq:20px; }
+  :root{ --terra:#BF7A5C; --terra-deep:#8A5540; --pl-closed:#E4DDCC; --pl-free:#BFD1BE; --plq:22px; }
+  /* рабочий текст Расписания — системный шрифт (San Francisco на iPhone/Mac), плотнее и крупнее; Cormorant только в заголовках */
+  #mt-planner, .pl-sheet{ font-family:var(--fs); -webkit-font-smoothing:antialiased; }
+  #mt-planner .chip, .pl-sheet .btn, .pl-sheet input, .pl-sheet select{ font-family:var(--fs); }
   .pl-modes{ display:flex; gap:22px; border-bottom:1px solid rgba(43,31,22,.12); margin-bottom:12px; }
-  .pl-modes button{ background:none; border:none; font-family:var(--ft); font-size:17px; color:rgba(43,31,22,.5); padding:0 2px 8px; cursor:pointer; }
+  .pl-modes button{ background:none; border:none; font-family:var(--ft); font-size:19px; font-weight:500; color:rgba(43,31,22,.5); padding:0 2px 8px; cursor:pointer; }
   .pl-modes button.active{ color:var(--chocolate); border-bottom:2px solid var(--gold); }
   .pl-nav{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
-  .pl-title{ font-family:var(--ft); font-size:21px; }
+  .pl-title{ font-family:var(--ft); font-size:22px; font-weight:500; }
+  .pl-topbar{ display:flex; justify-content:flex-end; margin-bottom:10px; }
   .pl-weekhead{ display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:8px; }
   .pl-wd{ text-align:center; padding:6px 0 7px; border-radius:11px; cursor:pointer; user-select:none; border:1px solid transparent; }
-  .pl-wd small{ display:block; font-size:9.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
-  .pl-wd span{ font-family:var(--ft); font-size:18px; }
+  .pl-wd small{ display:block; font-size:11px; font-weight:500; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; }
+  .pl-wd span{ font-size:19px; font-weight:600; }
   .pl-wd.today span{ color:var(--gold); }
   .pl-wd.sel{ background:#fff; border-color:rgba(196,160,48,.5); }
-  .pl-wd.off{ background:repeating-linear-gradient(-45deg,var(--pl-closed),var(--pl-closed) 4px,transparent 4px,transparent 8px); }
-  .pl-wd.off span{ color:var(--muted); text-decoration:line-through; }
-  .pl-hint{ font-size:11px; color:var(--muted); margin-bottom:8px; }
+  .pl-wd.off{ background:var(--pl-closed); }
+  .pl-wd.off span{ color:var(--muted); font-weight:500; }
+  .pl-hint{ font-size:12.5px; color:var(--muted); margin-bottom:8px; line-height:1.4; }
   /* day */
   .pl-day{ position:relative; }
-  .pl-hour{ display:flex; border-top:1.5px solid rgba(43,31,22,.28); }
-  .pl-hour .t{ width:46px; flex:none; font-size:11px; color:var(--muted); padding-top:2px; font-family:var(--ft); }
+  .pl-hour{ display:flex; border-top:1.5px solid rgba(43,31,22,.3); }
+  .pl-hour .t{ width:50px; flex:none; font-size:13.5px; font-weight:600; color:var(--chocolate); padding-top:3px; }
   .pl-hour .slot{ flex:1; position:relative; height:calc(var(--plq)*4); }
   .pl-q{ position:absolute; left:0; right:0; height:var(--plq); border-top:1px dashed rgba(43,31,22,.28); }
   .pl-q[data-i="0"]{ border-top:none; }
   .pl-q[data-i="2"]{ border-top:1px solid rgba(43,31,22,.22); }
-  .pl-q::after{ content:attr(data-m); position:absolute; left:-40px; top:-7px; font-size:9px; color:rgba(95,83,72,.7); font-family:var(--ft); }
+  .pl-q::after{ content:attr(data-m); position:absolute; left:-44px; top:-8px; font-size:11px; font-weight:500; color:rgba(95,83,72,.8); }
   .pl-q[data-i="0"]::after{ content:''; }
-  .pl-q.closed{ background:repeating-linear-gradient(-45deg,var(--pl-closed),var(--pl-closed) 5px,transparent 5px,transparent 10px); background-color:rgba(220,211,192,.4); }
-  .pl-q.free{ background:rgba(191,209,190,.32); cursor:pointer; }
-  .pl-appt{ position:absolute; left:0; right:0; border-radius:8px; padding:6px 9px; background:var(--terra); color:#fff; cursor:pointer; overflow:hidden; z-index:2; box-shadow:0 2px 5px rgba(138,85,64,.28); }
-  .pl-appt b{ display:block; font-size:13px; font-weight:500; }
-  .pl-appt i{ font-style:normal; font-size:10.5px; opacity:.92; }
+  .pl-q.closed{ background:var(--pl-closed); cursor:pointer; }
+  .pl-q.free{ background:rgba(191,209,190,.34); cursor:pointer; }
+  .pl-q.pick{ box-shadow:inset 0 0 0 2px var(--terra); background:rgba(191,122,92,.28); }
+  .pl-q.closed.pick{ background:rgba(191,122,92,.22); }
+  .pl-appt{ position:absolute; left:0; right:0; border-radius:8px; padding:6px 10px; background:var(--terra); color:#fff; cursor:pointer; overflow:hidden; z-index:2; box-shadow:0 2px 5px rgba(138,85,64,.28); }
+  .pl-appt b{ display:block; font-size:15px; font-weight:600; line-height:1.2; }
+  .pl-appt i{ font-style:normal; font-size:12.5px; font-weight:500; opacity:.95; }
   .pl-appt.done{ background:var(--gold); color:var(--chocolate); }
-  .pl-appt.done i{ opacity:.8; }
+  .pl-appt.done i{ opacity:.85; }
+  /* панель выбранных 15-минутных отрезков */
+  .pl-selbar{ position:sticky; bottom:12px; z-index:5; display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:space-between; margin-top:12px; padding:12px 14px; border-radius:12px; background:var(--chocolate); color:var(--milk); box-shadow:0 6px 18px rgba(43,31,22,.3); font-size:14px; }
+  .pl-selbar b{ font-weight:600; }
+  .pl-selbar .acts{ display:flex; gap:6px; flex-wrap:wrap; }
+  .pl-selbar .btn{ margin:0; width:auto; padding:9px 13px; font-size:13.5px; border-radius:9px; }
+  .pl-selbar .btn.gold{ background:var(--gold); color:var(--chocolate); }
+  .pl-selbar .btn.ghost{ background:transparent; color:var(--milk); border:1px solid rgba(252,250,246,.4); }
   /* week */
-  .pl-wkhead{ display:grid; grid-template-columns:38px repeat(7,1fr); gap:3px; margin-bottom:6px; }
-  .pl-wkhead div{ text-align:center; font-size:10px; color:var(--muted); font-family:var(--ft); cursor:pointer; }
+  .pl-wkhead{ display:grid; grid-template-columns:42px repeat(7,1fr); gap:3px; margin-bottom:6px; }
+  .pl-wkhead div{ text-align:center; font-size:12px; font-weight:600; color:var(--muted); cursor:pointer; }
   .pl-wkhead div.today{ color:var(--gold); }
   .pl-wkstack{ position:relative; }
-  .pl-wkbg{ display:grid; grid-template-columns:38px repeat(7,1fr); gap:3px; }
-  .pl-wkbg .wt{ font-size:10px; color:var(--muted); font-family:var(--ft); border-top:1px solid rgba(43,31,22,.14); padding-top:1px; }
+  .pl-wkbg{ display:grid; grid-template-columns:42px repeat(7,1fr); gap:3px; }
+  .pl-wkbg .wt{ font-size:12px; font-weight:600; color:var(--muted); border-top:1px solid rgba(43,31,22,.14); padding-top:2px; }
   .pl-wkbg .wc{ height:40px; background:#fff; border-top:1px solid rgba(43,31,22,.14); border-radius:2px; }
-  .pl-wkbg .wc.off{ background:repeating-linear-gradient(-45deg,var(--pl-closed),var(--pl-closed) 4px,#fff 4px,#fff 8px); }
-  .pl-wkov{ position:absolute; top:0; left:0; right:0; display:grid; grid-template-columns:38px repeat(7,1fr); gap:3px; pointer-events:none; }
+  .pl-wkbg .wc.off{ background:var(--pl-closed); }
+  .pl-wkov{ position:absolute; top:0; left:0; right:0; display:grid; grid-template-columns:42px repeat(7,1fr); gap:3px; pointer-events:none; }
   .pl-wkcol{ position:relative; pointer-events:none; }
-  .pl-wkappt{ position:absolute; left:1px; right:1px; border-radius:5px; background:var(--terra); color:#fff; font-size:9.5px; line-height:1.2; padding:3px 4px; overflow:hidden; cursor:pointer; pointer-events:auto; box-shadow:0 1px 3px rgba(138,85,64,.3); }
+  .pl-wkappt{ position:absolute; left:1px; right:1px; border-radius:5px; background:var(--terra); color:#fff; font-size:11px; font-weight:600; line-height:1.2; padding:3px 4px; overflow:hidden; cursor:pointer; pointer-events:auto; box-shadow:0 1px 3px rgba(138,85,64,.3); }
   .pl-wkappt.done{ background:var(--gold); color:var(--chocolate); }
   /* month */
   .pl-mdays{ display:grid; grid-template-columns:repeat(7,1fr); gap:5px; margin-bottom:6px; }
-  .pl-mdays div{ text-align:center; font-size:9.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+  .pl-mdays div{ text-align:center; font-size:11px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; }
   .pl-mgrid{ display:grid; grid-template-columns:repeat(7,1fr); gap:5px; }
   .pl-mcell{ background:#fff; border-radius:10px; padding:6px 4px 7px; display:flex; flex-direction:column; align-items:center; gap:5px; cursor:pointer; border:1.5px solid transparent; }
-  .pl-mcell span{ font-family:var(--ft); font-size:15px; line-height:1; }
-  .pl-mcell.off{ background:repeating-linear-gradient(-45deg,var(--pl-closed),var(--pl-closed) 4px,#fff 4px,#fff 8px); color:var(--muted); }
+  .pl-mcell span{ font-size:16px; font-weight:600; line-height:1; }
+  .pl-mcell.off{ background:var(--pl-closed); color:var(--muted); }
+  .pl-mcell.off span{ font-weight:500; }
   .pl-mcell.other{ opacity:.25; cursor:default; }
   .pl-mcell.today{ border-color:var(--gold); }
   .pl-mcell.sel{ border-color:var(--chocolate); }
   .pl-daybar{ width:100%; height:22px; border-radius:3px; background:var(--pl-free); overflow:hidden; position:relative; }
   .pl-daybar i{ position:absolute; left:0; right:0; background:var(--terra); display:block; }
   .pl-mcell.full .pl-daybar{ background:var(--terra); }
-  .pl-mcell .cnt{ font-size:9.5px; color:var(--muted); line-height:1; }
-  .pl-legend{ display:flex; gap:14px; margin:10px 0 2px; font-size:10.5px; color:var(--muted); }
+  .pl-mcell .cnt{ font-size:11px; font-weight:500; color:var(--muted); line-height:1; }
+  .pl-legend{ display:flex; gap:14px; margin:10px 0 2px; font-size:12px; color:var(--muted); }
   .pl-legend s{ display:inline-block; width:14px; height:8px; border-radius:2px; margin-right:5px; vertical-align:middle; text-decoration:none; }
-  .pl-drow{ display:flex; gap:10px; align-items:flex-start; padding:8px 0; border-top:1px solid rgba(43,31,22,.09); }
+  .pl-drow{ display:flex; gap:10px; align-items:flex-start; padding:9px 0; border-top:1px solid rgba(43,31,22,.09); }
   .pl-drow:first-child{ border-top:none; }
-  .pl-drow .dt{ font-size:11.5px; color:var(--muted); width:110px; flex:none; padding-top:2px; }
-  .pl-drow .dn{ font-size:13.5px; }
-  .pl-drow .dsvc{ font-size:11px; color:var(--muted); }
+  .pl-drow .dt{ font-size:13px; font-weight:500; color:var(--muted); width:118px; flex:none; padding-top:2px; }
+  .pl-drow .dn{ font-size:15.5px; font-weight:500; }
+  .pl-drow .dsvc{ font-size:12.5px; color:var(--muted); margin-top:2px; }
   .pl-drow.gap .dn{ color:var(--terra-deep); }
-  .pl-pill{ display:inline-block; font-size:10px; padding:2px 8px; border-radius:999px; background:var(--pl-free); color:#3E4A38; margin-left:6px; }
+  .pl-pill{ display:inline-block; font-size:11px; font-weight:500; padding:2px 8px; border-radius:999px; background:var(--pl-free); color:#3E4A38; margin-left:6px; }
   /* sheet */
   .pl-veil{ position:fixed; inset:0; background:rgba(43,31,22,.35); opacity:0; pointer-events:none; transition:.2s; z-index:90; }
   .pl-veil.open{ opacity:1; pointer-events:auto; }
-  .pl-sheet{ position:fixed; left:0; right:0; bottom:0; max-width:560px; margin:0 auto; background:var(--milk); border-radius:20px 20px 0 0; padding:10px 20px 28px; transform:translateY(105%); transition:transform .25s ease; box-shadow:0 -6px 24px rgba(43,31,22,.2); z-index:91; }
+  .pl-sheet{ position:fixed; left:0; right:0; bottom:0; max-width:560px; margin:0 auto; max-height:90vh; overflow-y:auto; background:var(--milk); border-radius:20px 20px 0 0; padding:10px 20px 28px; transform:translateY(105%); transition:transform .25s ease; box-shadow:0 -6px 24px rgba(43,31,22,.2); z-index:91; }
   .pl-sheet.open{ transform:translateY(0); }
   .pl-grip{ width:44px; height:4px; border-radius:2px; background:var(--pl-closed); margin:4px auto 14px; }
-  .pl-sheet h2{ font-family:var(--ft); font-weight:400; font-size:22px; margin-bottom:2px; }
-  .pl-sheet .sub{ margin-bottom:12px; }
+  .pl-sheet h2{ font-family:var(--ft); font-weight:500; font-size:24px; margin-bottom:2px; }
+  .pl-sheet .sub{ margin-bottom:12px; font-size:14px; }
+  .pl-sheet label{ font-size:11.5px; }
+  .pl-sheet input, .pl-sheet select{ font-size:16px; }
   .pl-actions{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-  .pl-actions .btn{ margin-top:0; padding:12px; font-size:13.5px; }
+  .pl-actions .btn{ margin-top:0; padding:13px; font-size:14.5px; }
   .pl-actions .btn.full{ grid-column:1/-1; }
 
   /* revenue */
@@ -433,6 +450,7 @@
           <button data-m="week" onclick="plMode('week')" data-i="plweek">Week</button>
           <button data-m="month" onclick="plMode('month')" data-i="plmonth">Month</button>
         </div>
+        <div class="pl-topbar"><button class="btn sm gold" onclick="plNewSheet()" data-i="pladd">+ Add booking</button></div>
         <div class="pl-nav">
           <button class="chip sm" onclick="plMove(-1)">←</button>
           <div class="pl-title" id="pl-title"></div>
@@ -599,7 +617,7 @@ const D = {
  /* planner */
  tplanner:{en:'Planner',ru:'Расписание',es:'Agenda'},
  plday:{en:'Day',ru:'День',es:'Día'}, plweek:{en:'Week',ru:'Неделя',es:'Semana'}, plmonth:{en:'Month',ru:'Месяц',es:'Mes'},
- plhint:{en:'Tap a date — day off · tap free time — close hours',ru:'Тап по дате — выходной · тап по свободному времени — закрыть часы',es:'Toca una fecha — día libre · toca tiempo libre — cerrar horas'},
+ plhint:{en:'Tap a date — day off · tap 15-min slots to select, then Close or Reopen',ru:'Тап по дате — выходной · выделяйте 15-минутные отрезки, затем «Закрыть» или «Открыть»',es:'Toca una fecha — día libre · marca tramos de 15 min y luego Cerrar o Reabrir'},
  plbusy:{en:'booked',ru:'занято',es:'ocupado'}, plfree:{en:'free',ru:'свободно',es:'libre'}, ploff:{en:'day off',ru:'выходной',es:'libre'},
  plfreeslot:{en:'Free',ru:'Свободно',es:'Libre'},
  plbookings:{en:'bookings',ru:'записей',es:'citas'}, plfreeh:{en:'free',ru:'свободно',es:'libre'}, plnogaps:{en:'no gaps',ru:'нет окон',es:'sin huecos'},
@@ -624,6 +642,26 @@ const D = {
  plcancelled:{en:'Cancelled',ru:'Запись отменена',es:'Cita cancelada'},
  plblock:{en:'Blocked',ru:'Закрыто',es:'Cerrado'},
  plneedtable:{en:'Blocked-time table missing — run the SQL from the setup note.',ru:'Нет таблицы blocked_slots — выполните SQL из инструкции.',es:'Falta la tabla blocked_slots — ejecuta el SQL.'},
+ plsel:{en:'Selected',ru:'Выбрано',es:'Seleccionado'},
+ plclosebtn:{en:'Close',ru:'Закрыть',es:'Cerrar'}, plopenbtn:{en:'Reopen',ru:'Открыть',es:'Reabrir'},
+ pltoend:{en:'…till end of day',ru:'…до конца дня',es:'…hasta el final'},
+ plseloff:{en:'Cancel',ru:'Отмена',es:'Cancelar'},
+ /* manual booking */
+ pladd:{en:'+ Add booking',ru:'+ Добавить запись',es:'+ Agregar cita'},
+ pladdtitle:{en:'New booking',ru:'Новая запись',es:'Nueva cita'},
+ pladdsub:{en:'For clients who book by phone or Instagram — they don\'t need a MeSeat account.',ru:'Для клиентов, которые записываются по телефону или через Instagram — аккаунт MeSeat им не нужен.',es:'Para clientas que reservan por teléfono o Instagram — no necesitan cuenta en MeSeat.'},
+ plcname:{en:'Client name',ru:'Имя клиента',es:'Nombre de la clienta'},
+ plcphone:{en:'Phone (optional)',ru:'Телефон (необязательно)',es:'Teléfono (opcional)'},
+ plsvc:{en:'Service',ru:'Услуга',es:'Servicio'},
+ pldate:{en:'Date',ru:'Дата',es:'Fecha'}, pltime:{en:'Start time',ru:'Время начала',es:'Hora de inicio'},
+ plsave:{en:'Save booking',ru:'Сохранить запись',es:'Guardar cita'},
+ pladded:{en:'Booking added ✓',ru:'Запись добавлена ✓',es:'Cita agregada ✓'},
+ plfillname:{en:'Enter the client\'s name.',ru:'Введите имя клиента.',es:'Escribe el nombre de la clienta.'},
+ plfillsvc:{en:'Choose a service.',ru:'Выберите услугу.',es:'Elige un servicio.'},
+ plfilltime:{en:'Set date and time.',ru:'Укажите дату и время.',es:'Indica fecha y hora.'},
+ ploverlap:{en:'Overlaps another booking at that time.',ru:'Пересекается с другой записью в это время.',es:'Se cruza con otra cita a esa hora.'},
+ plmanual:{en:'Added by you',ru:'Записано вами',es:'Agregada por ti'},
+ plneedcols:{en:'Run manual_bookings.sql in Supabase first.',ru:'Сначала выполните manual_bookings.sql в Supabase.',es:'Ejecuta primero manual_bookings.sql en Supabase.'},
  /* revenue */
  trevenue:{en:'My Revenue',ru:'Доход',es:'Mis ingresos'},
  pweek:{en:'This week',ru:'Эта неделя',es:'Esta semana'}, pmonth:{en:'This month',ru:'Этот месяц',es:'Este mes'},
@@ -998,7 +1036,7 @@ async function loadMasterBookings(){
   box.innerHTML='';
   data.forEach(b=>{
     const d=document.createElement('div'); d.className='bk-row';
-    d.innerHTML=`<div><div class="t1">${esc(b.services?.name||'Service')} · ${money(b.price_cents)}</div>
+    d.innerHTML=`<div><div class="t1">${b.client_name?esc(b.client_name)+' · ':''}${esc(b.services?.name||'Service')} · ${money(b.price_cents)}</div>
       <div class="t2">${b.date} · ${b.start_time.slice(0,5)}</div></div>
       <div style="display:flex;gap:6px;align-items:center"><span class="status ${b.status}">${t('st_'+b.status)}</span>
       ${b.status==='confirmed'?`<button class="btn sm sec" onclick="setBk('${b.id}','completed')">${t('done')}</button>`:''}</div>`;
@@ -1061,7 +1099,7 @@ function showCalDay(dIso){
   list.innerHTML='';
   bks.forEach(b=>{
     const row=document.createElement('div'); row.className='bk-row';
-    const dur=b.services?.duration_min||60;
+    const dur=bkDur(b);
     row.innerHTML=`<div><div class="t1">${fmtMin(toMin(b.start_time))} · ${esc(b.services?.name||'')}</div>
       <div class="t2">${dur} ${t('minshort')} · ${money(b.price_cents)}</div></div>
       <span class="status ${b.status}">${t('st_'+b.status)||b.status}</span>`;
@@ -1072,8 +1110,8 @@ function iso(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0
 
 /* ═══════════ PLANNER · Расписание (День / Неделя / Месяц) ═══════════ */
 /* Данные: schedule (рабочие часы по дням недели), bookings (записи), blocked_slots (выходные и закрытые часы), profiles (имена клиентов) */
-const PL = { mode:'day', date:null, sched:[], blocks:[], bks:[], names:{}, sel:null, hasBlocks:true };
-const PLQ = 20;                                 // px за 15 минут (совпадает с --plq)
+const PL = { mode:'day', date:null, sched:[], blocks:[], bks:[], names:{}, sel:null, hasBlocks:true, pick:new Set(), pickDate:null };
+const PLQ = 22;                                 // px за 15 минут (совпадает с --plq)
 
 function plMode(m){ PL.mode=m; document.querySelectorAll('.pl-modes button').forEach(b=>b.classList.toggle('active',b.dataset.m===m)); renderPlanner(); }
 function plMove(d){
@@ -1081,7 +1119,7 @@ function plMove(d){
   if(PL.mode==='day') dt.setDate(dt.getDate()+d);
   else if(PL.mode==='week') dt.setDate(dt.getDate()+7*d);
   else { dt.setDate(1); dt.setMonth(dt.getMonth()+d); }
-  PL.date=iso(dt); PL.sel=null; renderPlanner();
+  PL.date=iso(dt); PL.sel=null; plPickClear(); renderPlanner();
 }
 function plD(s){ const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); }
 function plMonday(dt){ const x=new Date(dt); x.setDate(x.getDate()-((x.getDay()+6)%7)); return x; }
@@ -1100,7 +1138,8 @@ function plWin(dateIso){                         // рабочее окно дн
 }
 function plDayBlocks(dateIso){ return PL.blocks.filter(b=>b.date===dateIso&&b.kind==='block').map(b=>[toMin(b.start_time),toMin(b.end_time)]); }
 function plDayBks(dateIso){ return PL.bks.filter(b=>b.date===dateIso&&!['cancelled_client','cancelled_master'].includes(b.status)).sort((a,b)=>a.start_time.localeCompare(b.start_time)); }
-function plName(b){ return PL.names[b.client_id]||t('plclient'); }
+function plName(b){ return b.client_name||PL.names[b.client_id]||t('plclient'); }
+function bkDur(b){ return b.duration_min||bkDur(b); }   // своя длительность записи, иначе по услуге
 function plHM(m){ return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0'); }
 
 async function plLoad(){
@@ -1137,7 +1176,7 @@ function plRenderDay(){
   const allWins=PL.sched.map(r=>[toMin(r.start_time),toMin(r.end_time)]);
   const h0=Math.floor((allWins.length?Math.min(...allWins.map(w=>w[0])):600)/60), h1=Math.ceil((allWins.length?Math.max(...allWins.map(w=>w[1])):1140)/60);
   const blocks=plDayBlocks(PL.date), bks=plDayBks(PL.date);
-  const occ=bks.map(b=>{ const st=toMin(b.start_time); return [st, st+(b.services?.duration_min||60)]; });
+  const occ=bks.map(b=>{ const st=toMin(b.start_time); return [st, st+(bkDur(b))]; });
   h+='<div class="pl-day">';
   for(let hh=h0; hh<h1; hh++){
     h+=`<div class="pl-hour"><div class="t">${hh}:00</div><div class="slot">`;
@@ -1146,15 +1185,69 @@ function plRenderDay(){
       const blocked=blocks.some(([a,b])=>m>=a&&m<b);
       const busy=occ.some(([a,b])=>m>=a&&m<b);
       const cls=(!inWin||blocked)?'closed':(busy?'':'free');
-      const click=(inWin)?`onclick="plCloseSheet('${PL.date}',${hh})"`:'';
-      h+=`<div class="pl-q ${cls}" data-i="${i}" data-m="${i?':'+String(i*15).padStart(2,'0'):''}" style="top:${i*PLQ}px" ${click}></div>`; }
+      const picked=PL.pickDate===PL.date&&PL.pick.has(m);
+      const click=(inWin&&!busy)?`onclick="plPickQ(${m})"`:'';
+      h+=`<div class="pl-q ${cls} ${picked?'pick':''}" data-i="${i}" data-m="${i?':'+String(i*15).padStart(2,'0'):''}" style="top:${i*PLQ}px" ${click}></div>`; }
     bks.filter(b=>Math.floor(toMin(b.start_time)/60)===hh).forEach(b=>{
-      const st=toMin(b.start_time), dur=b.services?.duration_min||60;
+      const st=toMin(b.start_time), dur=bkDur(b);
       h+=`<div class="pl-appt ${b.status==='completed'?'done':''}" style="top:${((st%60)/15)*PLQ}px;height:${(dur/15)*PLQ-4}px" onclick="event.stopPropagation();plApptSheet('${b.id}')"><b>${esc(plName(b))}</b><i>${esc(b.services?.name||'')} · ${fmtMin(st)}–${fmtMin(st+dur)}</i></div>`; });
     h+='</div></div>';
   }
   h+='</div>';
+  h+=plSelBar(win,blocks);
   document.getElementById('pl-body').innerHTML=h;
+}
+/* выбор 15-минутных отрезков */
+function plPickClear(){ PL.pick=new Set(); PL.pickDate=null; }
+function plPickQ(m){
+  if(PL.pickDate!==PL.date){ PL.pick=new Set(); PL.pickDate=PL.date; }
+  if(PL.pick.has(m)) PL.pick.delete(m); else PL.pick.add(m);
+  if(!PL.pick.size) PL.pickDate=null;
+  plRenderDay();
+}
+function plRanges(mins){                        // [10:00,10:15,10:30] → [[600,645]]
+  const a=[...mins].sort((x,y)=>x-y), out=[];
+  a.forEach(m=>{ const last=out[out.length-1]; if(last&&last[1]===m) last[1]=m+15; else out.push([m,m+15]); });
+  return out;
+}
+function plSelBar(win,blocks){
+  if(!win||PL.pickDate!==PL.date||!PL.pick.size) return '';
+  const rs=plRanges(PL.pick), total=PL.pick.size*15;
+  const anyClosed=[...PL.pick].some(m=>blocks.some(([a,b])=>m>=a&&m<b));
+  const anyFree=[...PL.pick].some(m=>!blocks.some(([a,b])=>m>=a&&m<b));
+  const label=rs.map(([a,b])=>fmtMin(a)+'–'+fmtMin(b)).join(', ');
+  return `<div class="pl-selbar"><div><b>${t('plsel')}</b> · ${label} · ${total} ${t('minshort')}</div>
+    <div class="acts">
+      ${anyFree?`<button class="btn gold" onclick="plBlockSel()">${t('plclosebtn')}</button>
+      <button class="btn ghost" onclick="plBlockSel(true)">${t('pltoend')}</button>`:''}
+      ${anyClosed?`<button class="btn ghost" onclick="plReopenSel()">${t('plopenbtn')}</button>`:''}
+      <button class="btn ghost" onclick="plPickClear();plRenderDay()">${t('plseloff')}</button>
+    </div></div>`;
+}
+async function plBlockSel(toEnd){
+  const di=PL.date, win=plWin(di); if(!win) return;
+  const blocks=plDayBlocks(di);
+  let rs=plRanges([...PL.pick].filter(m=>!blocks.some(([a,b])=>m>=a&&m<b)));
+  if(toEnd){ const start=Math.min(...PL.pick); rs=[[start,win[1]]]; }
+  if(!rs.length) return;
+  const rows=rs.map(([a,b])=>({master_id:ME.id,date:di,kind:'block',start_time:plHM(a),end_time:plHM(b)}));
+  const {error}=await db.from('blocked_slots').insert(rows);
+  if(error){ toast('⚠ '+error.message); return; }
+  plPickClear(); toast(t('plclosed')); renderPlanner();
+}
+async function plReopenSel(){
+  const di=PL.date, sel=plRanges([...PL.pick]);
+  const hit=PL.blocks.filter(x=>x.date===di&&x.kind==='block'&&sel.some(([a,b])=>toMin(x.start_time)<b&&toMin(x.end_time)>a));
+  if(!hit.length) return;
+  // удаляем задетые блоки и возвращаем их остатки вне выделения — так открывается ровно то, что выбрано
+  const {error}=await db.from('blocked_slots').delete().in('id',hit.map(x=>x.id));
+  if(error){ toast('⚠ '+error.message); return; }
+  const rest=[];
+  hit.forEach(x=>{ let parts=[[toMin(x.start_time),toMin(x.end_time)]];
+    sel.forEach(([a,b])=>{ const next=[]; parts.forEach(([p,q])=>{ if(b<=p||a>=q){ next.push([p,q]); return; } if(p<a) next.push([p,a]); if(b<q) next.push([b,q]); }); parts=next; });
+    parts.forEach(([p,q])=>rest.push({master_id:ME.id,date:di,kind:'block',start_time:plHM(p),end_time:plHM(q)})); });
+  if(rest.length){ const {error:e2}=await db.from('blocked_slots').insert(rest); if(e2){ toast('⚠ '+e2.message); return; } }
+  plPickClear(); toast(t('plreopened')); renderPlanner();
 }
 
 /* ── НЕДЕЛЯ ── */
@@ -1175,7 +1268,7 @@ function plRenderWeek(){
   h+='</div><div class="pl-wkov"><div></div>';
   days.forEach(d=>{ const di=iso(d);
     h+=`<div class="pl-wkcol" style="height:${(h1-h0)*ROW}px">`;
-    plDayBks(di).forEach(b=>{ const st=toMin(b.start_time), dur=b.services?.duration_min||60;
+    plDayBks(di).forEach(b=>{ const st=toMin(b.start_time), dur=bkDur(b);
       h+=`<div class="pl-wkappt ${b.status==='completed'?'done':''}" style="top:${(st-h0*60)/60*ROW}px;height:${dur/60*ROW-2}px" onclick="PL.date='${di}';plMode('day')">${esc(plName(b).split(' ')[0])}</div>`; });
     h+='</div>'; });
   h+='</div></div>';
@@ -1187,14 +1280,14 @@ function plRenderMonth(){
   const dt=plD(PL.date), y=dt.getFullYear(), m=dt.getMonth(), last=new Date(y,m+1,0).getDate(), todayIso=iso(new Date());
   document.getElementById('pl-title').textContent=MONTHS[L][m]+' '+y;
   let h='<div class="pl-mdays">'+[1,2,3,4,5,6,0].map(d=>`<div>${DAYS[L][d]}</div>`).join('')+'</div>';
-  h+=`<div class="pl-legend"><span><s style="background:var(--terra)"></s>${t('plbusy')}</span><span><s style="background:var(--pl-free)"></s>${t('plfree')}</span><span><s style="background:repeating-linear-gradient(-45deg,#DCD3C0,#DCD3C0 3px,#fff 3px,#fff 6px)"></s>${t('ploff')}</span></div>`;
+  h+=`<div class="pl-legend"><span><s style="background:var(--terra)"></s>${t('plbusy')}</span><span><s style="background:var(--pl-free)"></s>${t('plfree')}</span><span><s style="background:var(--pl-closed);border:1px solid rgba(43,31,22,.15)"></s>${t('ploff')}</span></div>`;
   h+='<div class="pl-mgrid">';
   const shift=(new Date(y,m,1).getDay()+6)%7;
   for(let i=0;i<shift;i++) h+='<div class="pl-mcell other"></div>';
   for(let d=1; d<=last; d++){ const di=iso(new Date(y,m,d)), win=plWin(di);
     if(!win){ h+=`<div class="pl-mcell off ${di===todayIso?'today':''} ${PL.sel===di?'sel':''}" onclick="plPickDay('${di}')"><span>${d}</span></div>`; continue; }
     const total=win[1]-win[0], bks=plDayBks(di), blocks=plDayBlocks(di);
-    let busy=0; const bars=bks.map(b=>{ const st=toMin(b.start_time), dur=b.services?.duration_min||60; busy+=dur;
+    let busy=0; const bars=bks.map(b=>{ const st=toMin(b.start_time), dur=bkDur(b); busy+=dur;
       return `<i style="top:${(st-win[0])/total*100}%;height:${dur/total*100}%"></i>`; }).join('')
       + blocks.map(([a,b])=>`<i style="top:${(a-win[0])/total*100}%;height:${(b-a)/total*100}%;background:var(--pl-closed)"></i>`).join('');
     const full=busy>=total-15;
@@ -1212,7 +1305,7 @@ function plDayPanel(di){
   if(!win){ h+=`<p class="note">${t('offday')}</p>`; p.innerHTML=h; return; }
   let cursor=win[0], rows='', busy=0;
   const gap=(a,b)=>`<div class="pl-drow gap"><div class="dt">${fmtMin(a)}–${fmtMin(b)}</div><div><div class="dn">${t('plfreeslot')}<span class="pl-pill">${b-a} ${t('minshort')}</span></div></div></div>`;
-  bks.forEach(b=>{ const st=toMin(b.start_time), dur=b.services?.duration_min||60; busy+=dur;
+  bks.forEach(b=>{ const st=toMin(b.start_time), dur=bkDur(b); busy+=dur;
     if(st-cursor>=15) rows+=gap(cursor,st);
     rows+=`<div class="pl-drow" onclick="plApptSheet('${b.id}')" style="cursor:pointer"><div class="dt">${fmtMin(st)}–${fmtMin(st+dur)}</div><div><div class="dn">${esc(plName(b))}</div><div class="dsvc">${esc(b.services?.name||'')} · ${money(b.price_cents)}</div></div></div>`;
     cursor=Math.max(cursor,st+dur); });
@@ -1229,10 +1322,10 @@ function plHide(){ document.getElementById('pl-veil').classList.remove('open'); 
 
 function plApptSheet(id){
   const b=PL.bks.find(x=>x.id===id); if(!b) return;
-  const st=toMin(b.start_time), dur=b.services?.duration_min||60;
+  const st=toMin(b.start_time), dur=bkDur(b);
   const dt=plD(b.date);
   plShow(`<h2>${esc(plName(b))}</h2>
-    <p class="sub">${esc(b.services?.name||'')} · ${fmtMin(st)}–${fmtMin(st+dur)} · ${money(b.price_cents)}<br>${WDFULL[L][dt.getDay()]}, ${dt.getDate()} ${MONTHS[L][dt.getMonth()]} · <span class="status ${b.status}">${t('st_'+b.status)}</span></p>
+    <p class="sub">${esc(b.services?.name||'')} · ${fmtMin(st)}–${fmtMin(st+dur)} · ${money(b.price_cents)}<br>${WDFULL[L][dt.getDay()]}, ${dt.getDate()} ${MONTHS[L][dt.getMonth()]} · <span class="status ${b.status}">${t('st_'+b.status)}</span>${b.client_phone?`<br><a href="tel:${esc(b.client_phone)}" style="color:var(--chocolate)">${esc(b.client_phone)}</a>`:''}${!b.client_id?`<br><span class="badge gold">${t('plmanual')}</span>`:''}</p>
     <div class="pl-actions">
       ${b.status==='confirmed'?`<button class="btn full" onclick="plSetBk('${b.id}','completed')">${t('plmarkdone')}</button>
       <button class="btn sec" onclick="plSetBk('${b.id}','no_show')">${t('plnoshow')}</button>
@@ -1268,17 +1361,62 @@ async function plToggleDayOff(di,isOff){
   toast(isOff?t('plisworking'):t('plisoff')); renderPlanner();
 }
 
-function plCloseSheet(di,hh){
-  const win=plWin(di); if(!win) return;
-  const isClosed=plDayBlocks(di).some(([a,b])=>hh*60>=a&&hh*60<b);
-  plShow(`<h2>${t('plclosetitle')}</h2><p class="sub">${fmtMin(hh*60)}–${fmtMin(hh*60+60)}</p>
-    <div class="pl-actions">
-      ${isClosed?`<button class="btn full" onclick="plReopen('${di}',${hh*60},${hh*60+60})">${t('plopentime')}</button>`:
-      `<button class="btn full" onclick="plBlock('${di}',${hh*60},${hh*60+60})">${t('plclosehour')}</button>
-       <button class="btn sec" onclick="plBlock('${di}',${win[0]},${Math.min(720,win[1])})">${t('plclosemorn')}</button>
-       <button class="btn sec" onclick="plBlock('${di}',${hh*60},${win[1]})">${t('plcloseeve')}</button>`}
+/* ── РУЧНАЯ ЗАПИСЬ (клиент без аккаунта MeSeat) ── */
+let PL_SVCS=[];
+async function plNewSheet(){
+  const {data}=await db.from('services').select('*').eq('master_id',ME.id).order('created_at');
+  PL_SVCS=data||[];
+  const opts=PL_SVCS.map(x=>`<option value="${x.id}">${esc(x.name)} · ${durText(x)} · ${priceText(x)}</option>`).join('');
+  const first=PL_SVCS[0];
+  const win=plWin(PL.date||iso(new Date()));
+  const startDefault=win?plHM(win[0]):'10:00';
+  plShow(`<h2>${t('pladdtitle')}</h2><p class="sub">${t('pladdsub')}</p>
+    <label>${t('plcname')}</label><input type="text" id="nb-name" autocomplete="off">
+    <label>${t('plcphone')}</label><input type="tel" id="nb-phone" placeholder="+1 ...">
+    <label>${t('plsvc')}</label><select id="nb-svc" onchange="plNbSvc()">${opts||'<option value="">—</option>'}</select>
+    <div class="row2">
+      <div><label>${t('pldate')}</label><input type="date" id="nb-date" value="${PL.date||iso(new Date())}"></div>
+      <div><label>${t('pltime')}</label><input type="time" id="nb-time" step="900" value="${startDefault}"></div>
+    </div>
+    <div class="row2">
+      <div><label>${t('duration')}</label><input type="number" id="nb-dur" step="5" min="5" value="${first?first.duration_min:60}"></div>
+      <div><label>${t('price')}</label><input type="number" id="nb-price" min="0" value="${first?(first.price_cents/100):''}"></div>
+    </div>
+    <div class="pl-actions" style="margin-top:14px">
+      <button class="btn full gold" id="nb-go" onclick="plSaveManual()">${t('plsave')}</button>
       <button class="btn sec full" onclick="plHide()">${t('plclose')}</button>
     </div>`);
+  const dEl=document.getElementById('nb-date'); if(dEl) dEl.style.cssText='width:100%;border:var(--border);border-radius:10px;background:#fff;padding:12px 13px;font-family:var(--fs);font-size:16px;color:var(--chocolate);outline:none';
+  setTimeout(()=>{ const n=document.getElementById('nb-name'); if(n) n.focus(); },300);
+}
+function plNbSvc(){
+  const x=PL_SVCS.find(v=>v.id===document.getElementById('nb-svc').value); if(!x) return;
+  document.getElementById('nb-dur').value=x.duration_min;
+  document.getElementById('nb-price').value=x.price_cents/100;
+}
+async function plSaveManual(){
+  const name=document.getElementById('nb-name').value.trim();
+  const phone=document.getElementById('nb-phone').value.trim();
+  const svc=document.getElementById('nb-svc').value;
+  const date=document.getElementById('nb-date').value, time=document.getElementById('nb-time').value;
+  const dur=parseInt(document.getElementById('nb-dur').value,10)||60;
+  const price=Math.round(parseFloat(document.getElementById('nb-price').value||'0')*100);
+  if(!name){ toast(t('plfillname')); return; }
+  if(!svc){ toast(t('plfillsvc')); return; }
+  if(!date||!time){ toast(t('plfilltime')); return; }
+  const st=toMin(time.slice(0,5));
+  // пересечение с существующими записями того же дня
+  const {data:same}=await db.from('bookings').select('start_time, duration_min, services(duration_min)').eq('master_id',ME.id).eq('date',date).neq('status','cancelled_client').neq('status','cancelled_master');
+  if((same||[]).some(b=>{ const a=toMin(b.start_time), e=a+bkDur(b); return st<e && st+dur>a; })){ toast(t('ploverlap')); return; }
+  const btn=document.getElementById('nb-go'); btn.disabled=true;
+  const {error}=await db.from('bookings').insert({ master_id:ME.id, client_id:null, client_name:name, client_phone:phone||null,
+    service_id:svc, date, start_time:time.slice(0,5), duration_min:dur, price_cents:price, status:'confirmed' });
+  btn.disabled=false;
+  if(error){ toast(/client_name|duration_min|client_phone|null value|violates/i.test(error.message)?t('plneedcols')+' · '+error.message:'⚠ '+error.message); return; }
+  plHide(); toast(t('pladded'));
+  PL.date=date; if(PL.mode!=='month') PL.mode='day';
+  document.querySelectorAll('.pl-modes button').forEach(b=>b.classList.toggle('active',b.dataset.m===PL.mode));
+  renderPlanner(); loadMasterBookings();
 }
 async function plBlock(di,a,b){
   if(b<=a){ plHide(); return; }
@@ -1471,9 +1609,9 @@ async function pickDay(iso, wd, btn){
   btn.classList.add('sel');
   const wrap=document.getElementById('b-slots-wrap'); wrap.classList.remove('hidden');
   const grid=document.getElementById('b-slots'); grid.innerHTML='<span class="spin"></span>';
-  const {data:booked}=await db.from('bookings').select('start_time, service_id, services(duration_min)')
+  const {data:booked}=await db.from('bookings').select('*, services(duration_min)')
     .eq('master_id',B.master.id).eq('date',iso).neq('status','cancelled_client').neq('status','cancelled_master');
-  const busy=(booked||[]).map(b=>{ const st=toMin(b.start_time); return [st, st+(b.services?.duration_min||60)]; });
+  const busy=(booked||[]).map(b=>{ const st=toMin(b.start_time); return [st, st+(bkDur(b))]; });
   // закрытые мастером часы и выходные (blocked_slots) — тоже занято; если таблицы нет, просто пропускаем
   const {data:blk}=await db.from('blocked_slots').select('*').eq('master_id',B.master.id).eq('date',iso);
   if((blk||[]).some(x=>x.kind==='dayoff')){ grid.innerHTML='<span class="note">'+t('noslots')+'</span>'; return; }
