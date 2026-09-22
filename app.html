@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MeSeat — Beta</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -12,41 +12,42 @@
     --cashmere: #F0E9DB; --chocolate: #2B1F16; --gold: #C4A030;
     --milk: #FCFAF6; --muted: #5F5348; --olive: #8A9B6E; --red: #B96A5B;
     --ft: 'Cormorant Garamond', Georgia, serif;
-    --fu: 'Jost', sans-serif;
-    --fs: -apple-system, BlinkMacSystemFont, system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    --fu: -apple-system, BlinkMacSystemFont, system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    --fs: var(--fu);
+    --ink2: #6B5D4F;  /* вторичный текст — плотный, без прозрачности */
     --border: 1.5px solid rgba(43,31,22,.16);
     --shadow: 0 3px 14px rgba(43,31,22,.10);
   }
-  body { background: var(--cashmere); color: var(--chocolate); font-family: var(--fu); min-height: 100vh; }
+  body { background: var(--cashmere); color: var(--chocolate); font-family: var(--fu); min-height: 100vh; -webkit-font-smoothing:antialiased; }
   .wrap { max-width: 560px; margin: 0 auto; padding: 18px 16px 90px; }
 
   /* header */
   .top { display:flex; justify-content:space-between; align-items:flex-start; padding: 8px 0 4px; }
   .wm { font-family: var(--ft); font-size: 26px; line-height: 1; }
   .wm .seat { display:block; margin-top:4px; }
-  .wm .loc { font-size: 8px; letter-spacing:.4em; text-transform:uppercase; color:var(--muted); margin-top:6px; padding-left:.4em; }
+  .wm .loc { font-size: 9px; letter-spacing:.4em; text-transform:uppercase; color:var(--muted); margin-top:6px; padding-left:.4em; }
   .top-right { display:flex; gap:8px; align-items:center; }
-  .beta-tag { font-size:9px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold); border:1px solid var(--gold); border-radius:10px; padding:3px 8px; }
+  .beta-tag { font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold); border:1px solid var(--gold); border-radius:10px; padding:3px 8px; }
 
-  .chip { display:inline-flex; align-items:center; padding:7px 14px; border-radius:20px; border:1px solid rgba(43,31,22,.2); background:transparent; font-family:var(--fu); font-size:12.5px; color:var(--chocolate); cursor:pointer; white-space:nowrap; }
+  .chip { display:inline-flex; align-items:center; padding:8px 15px; border-radius:20px; border:1px solid rgba(43,31,22,.28); background:transparent; font-family:var(--fu); font-size:13.5px; font-weight:500; color:var(--chocolate); cursor:pointer; white-space:nowrap; }
   .chip.active { background: var(--chocolate); color: var(--milk); border-color: var(--chocolate); }
-  .chip.sm { padding:5px 10px; font-size:11px; }
+  .chip.sm { padding:6px 11px; font-size:12.5px; }
   .chips { display:flex; gap:8px; flex-wrap:wrap; }
 
   h1.h { font-family: var(--ft); font-weight:400; font-size: 30px; margin: 18px 0 4px; }
-  .sub { font-size: 13px; color: var(--muted); margin-bottom: 16px; line-height:1.5; }
+  .sub { font-size: 14.5px; color: var(--ink2); margin-bottom: 16px; line-height:1.5; }
   .card { background: var(--milk); border: var(--border); box-shadow: var(--shadow); border-radius: 14px; padding: 18px; margin-bottom: 14px; }
   .sect { font-family: var(--ft); font-size: 20px; margin: 20px 0 10px; }
 
-  label { display:block; font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; margin: 12px 0 6px; }
+  label { display:block; font-size:12px; font-weight:600; color:var(--ink2); text-transform:uppercase; letter-spacing:.07em; margin: 12px 0 6px; }
   input[type=text], input[type=email], input[type=password], input[type=tel], input[type=number], input[type=time], textarea, select {
     width:100%; border: var(--border); border-radius:10px; background:#fff;
-    padding: 12px 13px; font-family:var(--fu); font-size:15px; color:var(--chocolate); outline:none;
+    padding: 12px 13px; font-family:var(--fu); font-size:16px; color:var(--chocolate); outline:none;
   }
   input:focus, textarea:focus { border-color: var(--gold); }
   textarea { min-height: 72px; resize: vertical; }
   .row2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-  .note { font-size: 11.5px; color: var(--muted); margin-top: 6px; line-height: 1.5; }
+  .note { font-size: 13px; color: var(--ink2); margin-top: 6px; line-height: 1.5; }
 
   .btn { width:100%; background:var(--chocolate); color:var(--milk); border:none; padding:15px; border-radius:12px; font-family:var(--fu); font-size:15.5px; letter-spacing:.4px; cursor:pointer; margin-top:14px; transition: transform .15s; }
   .btn:active { transform: scale(.98); }
@@ -57,30 +58,30 @@
   .btn[disabled] { opacity:.5; cursor:default; }
 
   .tabs { display:flex; gap:18px; border-bottom:1px solid rgba(43,31,22,.12); margin: 14px 0 16px; overflow-x:auto; scrollbar-width:none; }
-  .tab { background:none; border:none; font-family:var(--fu); font-size:13.5px; color:rgba(43,31,22,.5); padding: 0 2px 10px; cursor:pointer; position:relative; white-space:nowrap; }
-  .tab.active { color: var(--chocolate); font-weight:500; }
+  .tab { background:none; border:none; font-family:var(--fu); font-size:14.5px; font-weight:500; color:var(--ink2); padding: 0 2px 10px; cursor:pointer; position:relative; white-space:nowrap; }
+  .tab.active { color: var(--chocolate); font-weight:600; }
   .tab.active::after { content:''; position:absolute; bottom:-1px; left:0; right:0; height:2px; background:var(--chocolate); }
 
   .m-card { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; cursor:pointer; }
   .m-name { font-family:var(--ft); font-size:21px; }
-  .m-meta { font-size:12px; color:var(--muted); margin-top:3px; }
-  .m-bio { font-size:12.5px; color:var(--muted); margin-top:8px; line-height:1.5; }
-  .badge { font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--olive); border:1px solid rgba(138,155,110,.5); border-radius:10px; padding:3px 8px; white-space:nowrap; }
+  .m-meta { font-size:13px; color:var(--ink2); margin-top:3px; }
+  .m-bio { font-size:13.5px; color:var(--ink2); margin-top:8px; line-height:1.5; }
+  .badge { font-size:10.5px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--olive); border:1px solid rgba(138,155,110,.5); border-radius:10px; padding:3px 8px; white-space:nowrap; }
   .badge.gold { color:var(--gold); border-color: rgba(196,160,48,.5); }
 
   .svc { display:flex; justify-content:space-between; align-items:center; padding: 11px 0; border-bottom:1px solid rgba(43,31,22,.08); cursor:pointer; }
   .svc:last-child { border-bottom:none; }
-  .svc .n { font-size:14.5px; }
-  .svc .n small { display:block; font-size:11px; color:var(--muted); margin-top:2px; }
+  .svc .n { font-size:15px; font-weight:500; }
+  .svc .n small { display:block; font-size:12.5px; font-weight:400; color:var(--ink2); margin-top:2px; }
   .svc .p { font-family:var(--ft); font-size:18px; white-space:nowrap; }
   .svc.sel { background: rgba(196,160,48,.08); border-radius:10px; padding-left:10px; padding-right:10px; }
 
   .slotgrid { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
   .bk-row { display:flex; justify-content:space-between; align-items:center; padding: 12px 0; border-bottom:1px solid rgba(43,31,22,.08); }
   .bk-row:last-child { border-bottom:none; }
-  .bk-row .t1 { font-size:14px; font-weight:500; }
-  .bk-row .t2 { font-size:11.5px; color:var(--muted); margin-top:2px; }
-  .status { font-size:10px; letter-spacing:.08em; text-transform:uppercase; padding:3px 8px; border-radius:10px; }
+  .bk-row .t1 { font-size:15px; font-weight:500; }
+  .bk-row .t2 { font-size:13px; color:var(--ink2); margin-top:2px; }
+  .status { font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; padding:3px 8px; border-radius:10px; }
   .status.confirmed { color:var(--olive); border:1px solid rgba(138,155,110,.5); }
   .status.completed { color:var(--gold); border:1px solid rgba(196,160,48,.5); }
   .status.cancelled_client, .status.cancelled_master, .status.no_show { color:var(--red); border:1px solid rgba(185,106,91,.4); }
@@ -98,11 +99,11 @@
   @keyframes sp { to { transform: rotate(360deg); } }
   .day-strip { display:flex; gap:8px; overflow-x:auto; padding:4px 0 8px; scrollbar-width:none; }
   .day-btn { min-width:64px; border:var(--border); background:#fff; border-radius:12px; padding:9px 6px; text-align:center; cursor:pointer; font-family:var(--fu); }
-  .day-btn .dw { font-size:9.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); }
+  .day-btn .dw { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); }
   .day-btn .dn { font-family:var(--ft); font-size:19px; margin-top:2px; }
   .day-btn.sel { background:var(--chocolate); color:var(--milk); border-color:var(--chocolate); }
   .day-btn.sel .dw { color:rgba(252,250,246,.7); }
-  .lic-note { display:flex; gap:8px; align-items:flex-start; background:rgba(138,155,110,.1); border:1px solid rgba(138,155,110,.35); border-radius:10px; padding:10px 12px; font-size:12px; line-height:1.5; margin-top:10px; }
+  .lic-note { display:flex; gap:8px; align-items:flex-start; background:rgba(138,155,110,.1); border:1px solid rgba(138,155,110,.35); border-radius:10px; padding:10px 12px; font-size:13px; line-height:1.5; margin-top:10px; }
 
   /* calendar */
   .cal-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
@@ -122,16 +123,16 @@
   .cal-legend span { display:flex; align-items:center; gap:5px; }
 
   /* ═══ PLANNER (Расписание) ═══ */
-  :root{ --terra:#BF7A5C; --terra-deep:#8A5540; --pl-closed:#E4DDCC; --pl-free:#BFD1BE; --plq:22px; }
+  :root{ --pl-closed:#E4DDCC; --pl-free:#BFD1BE; --plq:22px; }
   /* рабочий текст Расписания — системный шрифт (San Francisco на iPhone/Mac), плотнее и крупнее; Cormorant только в заголовках */
   #mt-planner, .pl-sheet{ font-family:var(--fs); -webkit-font-smoothing:antialiased; }
   #mt-planner .chip, .pl-sheet .btn, .pl-sheet input, .pl-sheet select{ font-family:var(--fs); }
   .pl-modes{ display:flex; gap:22px; border-bottom:1px solid rgba(43,31,22,.12); margin-bottom:12px; }
-  .pl-modes button{ background:none; border:none; font-family:var(--ft); font-size:19px; font-weight:500; color:rgba(43,31,22,.5); padding:0 2px 8px; cursor:pointer; }
+  .pl-modes button{ background:none; border:none; font-family:var(--ft); font-size:20px; font-weight:500; color:var(--ink2); padding:0 2px 8px; cursor:pointer; }
   .pl-modes button.active{ color:var(--chocolate); border-bottom:2px solid var(--gold); }
   .pl-nav{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
   .pl-title{ font-family:var(--ft); font-size:22px; font-weight:500; }
-  .pl-topbar{ display:flex; justify-content:flex-end; margin-bottom:10px; }
+  .pl-topbar{ display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px; }
   .pl-weekhead{ display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:8px; }
   .pl-wd{ text-align:center; padding:6px 0 7px; border-radius:11px; cursor:pointer; user-select:none; border:1px solid transparent; }
   .pl-wd small{ display:block; font-size:11px; font-weight:500; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; }
@@ -153,19 +154,24 @@
   .pl-q[data-i="0"]::after{ content:''; }
   .pl-q.closed{ background:var(--pl-closed); cursor:pointer; }
   .pl-q.free{ background:rgba(191,209,190,.34); cursor:pointer; }
-  .pl-q.pick{ box-shadow:inset 0 0 0 2px var(--terra); background:rgba(191,122,92,.28); }
-  .pl-q.closed.pick{ background:rgba(191,122,92,.22); }
-  .pl-appt{ position:absolute; left:0; right:0; border-radius:8px; padding:6px 10px; background:var(--terra); color:#fff; cursor:pointer; overflow:hidden; z-index:2; box-shadow:0 2px 5px rgba(138,85,64,.28); }
+  .pl-q.pick{ box-shadow:inset 0 0 0 2px var(--gold); background:rgba(196,160,48,.25); }
+  .pl-q.closed.pick{ background:rgba(196,160,48,.3); }
+  .pl-appt{ position:absolute; left:0; right:0; border-radius:8px; padding:6px 10px; background:var(--chocolate); color:var(--milk); cursor:pointer; overflow:hidden; z-index:2; box-shadow:0 2px 6px rgba(43,31,22,.3); }
   .pl-appt b{ display:block; font-size:15px; font-weight:600; line-height:1.2; }
-  .pl-appt i{ font-style:normal; font-size:12.5px; font-weight:500; opacity:.95; }
+  .pl-appt i{ font-style:normal; font-size:12.5px; font-weight:500; opacity:.92; }
+  /* личное время — блок в сетке дня */
+  .pl-block{ position:absolute; left:0; right:0; border-radius:8px; padding:5px 10px; background:var(--pl-closed); border:1px solid rgba(43,31,22,.14); color:#4A3D30; cursor:pointer; overflow:hidden; z-index:1; }
+  .pl-block b{ display:block; font-size:13.5px; font-weight:600; line-height:1.25; }
+  .pl-block i{ font-style:normal; font-size:12px; color:var(--ink2); }
   .pl-appt.done{ background:var(--gold); color:var(--chocolate); }
   .pl-appt.done i{ opacity:.85; }
   /* панель выбранных 15-минутных отрезков */
-  .pl-selbar{ position:sticky; bottom:12px; z-index:5; display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:space-between; margin-top:12px; padding:12px 14px; border-radius:12px; background:var(--chocolate); color:var(--milk); box-shadow:0 6px 18px rgba(43,31,22,.3); font-size:14px; }
+  .pl-selbar{ position:sticky; bottom:12px; z-index:5; display:flex; flex-direction:column; gap:9px; align-items:stretch; margin-top:12px; padding:12px 14px; border-radius:12px; background:var(--chocolate); color:var(--milk); box-shadow:0 6px 18px rgba(43,31,22,.3); font-size:14px; }
   .pl-selbar b{ font-weight:600; }
   .pl-selbar .acts{ display:flex; gap:6px; flex-wrap:wrap; }
   .pl-selbar .btn{ margin:0; width:auto; padding:9px 13px; font-size:13.5px; border-radius:9px; }
   .pl-selbar .btn.gold{ background:var(--gold); color:var(--chocolate); }
+  .pl-selbar input{ border:none; border-radius:9px; padding:10px 12px; font-size:15px; font-family:var(--fu); }
   .pl-selbar .btn.ghost{ background:transparent; color:var(--milk); border:1px solid rgba(252,250,246,.4); }
   /* week */
   .pl-wkhead{ display:grid; grid-template-columns:42px repeat(7,1fr); gap:3px; margin-bottom:6px; }
@@ -178,7 +184,7 @@
   .pl-wkbg .wc.off{ background:var(--pl-closed); }
   .pl-wkov{ position:absolute; top:0; left:0; right:0; display:grid; grid-template-columns:42px repeat(7,1fr); gap:3px; pointer-events:none; }
   .pl-wkcol{ position:relative; pointer-events:none; }
-  .pl-wkappt{ position:absolute; left:1px; right:1px; border-radius:5px; background:var(--terra); color:#fff; font-size:11px; font-weight:600; line-height:1.2; padding:3px 4px; overflow:hidden; cursor:pointer; pointer-events:auto; box-shadow:0 1px 3px rgba(138,85,64,.3); }
+  .pl-wkappt{ position:absolute; left:1px; right:1px; border-radius:5px; background:var(--chocolate); color:var(--milk); font-size:11px; font-weight:600; line-height:1.2; padding:3px 4px; overflow:hidden; cursor:pointer; pointer-events:auto; box-shadow:0 1px 3px rgba(43,31,22,.3); }
   .pl-wkappt.done{ background:var(--gold); color:var(--chocolate); }
   /* month */
   .pl-mdays{ display:grid; grid-template-columns:repeat(7,1fr); gap:5px; margin-bottom:6px; }
@@ -192,8 +198,8 @@
   .pl-mcell.today{ border-color:var(--gold); }
   .pl-mcell.sel{ border-color:var(--chocolate); }
   .pl-daybar{ width:100%; height:22px; border-radius:3px; background:var(--pl-free); overflow:hidden; position:relative; }
-  .pl-daybar i{ position:absolute; left:0; right:0; background:var(--terra); display:block; }
-  .pl-mcell.full .pl-daybar{ background:var(--terra); }
+  .pl-daybar i{ position:absolute; left:0; right:0; background:var(--chocolate); display:block; }
+  .pl-mcell.full .pl-daybar{ background:var(--chocolate); }
   .pl-mcell .cnt{ font-size:11px; font-weight:500; color:var(--muted); line-height:1; }
   .pl-legend{ display:flex; gap:14px; margin:10px 0 2px; font-size:12px; color:var(--muted); }
   .pl-legend s{ display:inline-block; width:14px; height:8px; border-radius:2px; margin-right:5px; vertical-align:middle; text-decoration:none; }
@@ -202,7 +208,7 @@
   .pl-drow .dt{ font-size:13px; font-weight:500; color:var(--muted); width:118px; flex:none; padding-top:2px; }
   .pl-drow .dn{ font-size:15.5px; font-weight:500; }
   .pl-drow .dsvc{ font-size:12.5px; color:var(--muted); margin-top:2px; }
-  .pl-drow.gap .dn{ color:var(--terra-deep); }
+  .pl-drow.gap .dn{ color:#5A6B45; }
   .pl-pill{ display:inline-block; font-size:11px; font-weight:500; padding:2px 8px; border-radius:999px; background:var(--pl-free); color:#3E4A38; margin-left:6px; }
   /* sheet */
   .pl-veil{ position:fixed; inset:0; background:rgba(43,31,22,.35); opacity:0; pointer-events:none; transition:.2s; z-index:90; }
@@ -363,12 +369,9 @@
     <div class="tabs">
       <button class="tab active" data-t="profile" onclick="mTab('profile',this)" data-i="tprofile">Profile</button>
       <button class="tab" data-t="services" onclick="mTab('services',this)" data-i="tservices">Services</button>
-      <button class="tab" data-t="schedule" onclick="mTab('schedule',this)" data-i="tschedule">Schedule</button>
-      <button class="tab" data-t="calendar" onclick="mTab('calendar',this)" data-i="tcalendar">Calendar</button>
       <button class="tab" data-t="planner" onclick="mTab('planner',this)" data-i="tplanner">Planner</button>
       <button class="tab" data-t="revenue" onclick="mTab('revenue',this)" data-i="trevenue">My Revenue</button>
       <button class="tab" data-t="portfolio" onclick="mTab('portfolio',this)" data-i="tportfolio">Portfolio</button>
-      <button class="tab" data-t="bookings" onclick="mTab('bookings',this)" data-i="tbookings">Bookings</button>
       <button class="tab" data-t="chat" onclick="mTab('chat',this)" data-i="tchat">Messages</button>
     </div>
 
@@ -416,32 +419,6 @@
       </div>
     </div>
 
-    <div id="mt-schedule" class="hidden">
-      <div class="card" id="sched-card"></div>
-      <button class="btn" id="btn-savesched" onclick="saveSchedule()" data-i="saveschedule">Save schedule</button>
-    </div>
-
-    <!-- ── CALENDAR ── -->
-    <div id="mt-calendar" class="hidden">
-      <div class="card">
-        <div class="cal-head">
-          <button class="chip sm" onclick="calMove(-1)">←</button>
-          <div class="cal-title" id="cal-title"></div>
-          <button class="chip sm" onclick="calMove(1)">→</button>
-        </div>
-        <div class="cal-grid" id="cal-dows"></div>
-        <div class="cal-grid" id="cal-days"></div>
-        <div class="cal-legend">
-          <span><i class="dot bk"></i> <span data-i="legbooked">Booked</span></span>
-          <span><i class="dot wk"></i> <span data-i="legwork">Working day</span></span>
-        </div>
-      </div>
-      <div class="card" id="cal-day-card">
-        <div class="sect" style="margin-top:0" id="cal-day-title" data-i="pickaday">Pick a day</div>
-        <div id="cal-day-list"></div>
-      </div>
-    </div>
-
     <!-- ── PLANNER (Расписание) ── -->
     <div id="mt-planner" class="hidden">
       <div class="card">
@@ -450,7 +427,10 @@
           <button data-m="week" onclick="plMode('week')" data-i="plweek">Week</button>
           <button data-m="month" onclick="plMode('month')" data-i="plmonth">Month</button>
         </div>
-        <div class="pl-topbar"><button class="btn sm gold" onclick="plNewSheet()" data-i="pladd">+ Add booking</button></div>
+        <div class="pl-topbar">
+          <button class="chip sm" onclick="plHoursSheet()" data-i="plhours">Working hours</button>
+          <button class="btn sm" onclick="plNewSheet()" data-i="pladd">+ Add booking</button>
+        </div>
         <div class="pl-nav">
           <button class="chip sm" onclick="plMove(-1)">←</button>
           <div class="pl-title" id="pl-title"></div>
@@ -524,9 +504,6 @@
       </div>
     </div>
 
-    <div id="mt-bookings" class="hidden">
-      <div class="card" id="m-bookings"><span class="note" data-i="nobookings2">No appointments yet. Your open slots are live — clients can find you.</span></div>
-    </div>
   </div>
 
 </div>
@@ -643,6 +620,11 @@ const D = {
  plblock:{en:'Blocked',ru:'Закрыто',es:'Cerrado'},
  plneedtable:{en:'Blocked-time table missing — run the SQL from the setup note.',ru:'Нет таблицы blocked_slots — выполните SQL из инструкции.',es:'Falta la tabla blocked_slots — ejecuta el SQL.'},
  plsel:{en:'Selected',ru:'Выбрано',es:'Seleccionado'},
+ plhours:{en:'Working hours',ru:'Часы работы',es:'Horario de trabajo'},
+ plhourssub:{en:'Your regular week — when clients can book you. One-off changes (a day off, closed hours) are made right in the calendar.',ru:'Ваша обычная неделя — когда клиенты могут записаться. Разовые изменения (выходной, закрытые часы) делаются прямо в календаре.',es:'Tu semana habitual — cuándo pueden reservar las clientas. Los cambios puntuales se hacen en el calendario.'},
+ plpersonal:{en:'Personal time',ru:'Личное время',es:'Tiempo personal'},
+ plnote:{en:'Note for yourself — optional',ru:'Подпись для себя — необязательно',es:'Nota para ti — opcional'},
+ plneednote:{en:'Run personal_time.sql in Supabase to save notes.',ru:'Чтобы сохранять подписи, выполните personal_time.sql в Supabase.',es:'Ejecuta personal_time.sql en Supabase para guardar notas.'},
  plclosebtn:{en:'Close',ru:'Закрыть',es:'Cerrar'}, plopenbtn:{en:'Reopen',ru:'Открыть',es:'Reabrir'},
  pltoend:{en:'…till end of day',ru:'…до конца дня',es:'…hasta el final'},
  plseloff:{en:'Cancel',ru:'Отмена',es:'Cancelar'},
@@ -738,13 +720,10 @@ function setLang(l, btn){ L=l;
   if (authMode) authTab(authMode);
   // перерисовываем то, что построено скриптом
   if(ME && MYPROF && MYPROF.role==='master'){
-    if(!document.getElementById('mt-calendar').classList.contains('hidden')) renderCal();
     if(!document.getElementById('mt-planner').classList.contains('hidden')) renderPlanner();
     if(!document.getElementById('mt-revenue').classList.contains('hidden')) loadRevenue();
     if(!document.getElementById('mt-chat').classList.contains('hidden')) renderChat();
     if(!document.getElementById('mt-services').classList.contains('hidden')) loadServices();
-    if(!document.getElementById('mt-schedule').classList.contains('hidden')) loadScheduleUI();
-    if(!document.getElementById('mt-bookings').classList.contains('hidden')) loadMasterBookings();
   } else if(ME && MYPROF){
     if(!document.getElementById('v-client').classList.contains('hidden')) loadClientHome();
   }
@@ -883,14 +862,13 @@ async function loadMasterDash(){
     document.getElementById('mp-insta').value=m.instagram||'';
     document.getElementById('mp-duo').classList.toggle('active', !!m.duo_session);
   } else vl.textContent = t('fillprofile');
-  await Promise.all([loadServices(), loadScheduleUI(), loadPortfolio(), loadMasterBookings()]);
+  await Promise.all([loadServices(), loadPortfolio()]);
 }
 function mTab(name, btn){
   document.querySelectorAll('#v-master .tab').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  ['profile','services','schedule','calendar','planner','revenue','portfolio','bookings','chat'].forEach(x=>
+  ['profile','services','planner','revenue','portfolio','chat'].forEach(x=>
     document.getElementById('mt-'+x).classList.toggle('hidden', x!==name));
-  if(name==='calendar') renderCal();
   if(name==='planner') renderPlanner();
   if(name==='revenue') loadRevenue();
   if(name==='chat') renderChat();
@@ -948,19 +926,20 @@ async function addService(){
 }
 async function delService(id){ await db.from('services').delete().eq('id',id); loadServices(); }
 
-async function loadScheduleUI(){
+async function plHoursSheet(){
   const {data}=await db.from('schedule').select('*').eq('master_id',ME.id);
   const byDay={}; (data||[]).forEach(r=>byDay[r.weekday]=r);
-  const card=document.getElementById('sched-card'); card.innerHTML='';
+  let rows='';
   for(let wd=1; wd<=7; wd++){ const d=wd%7; const r=byDay[d];
-    const row=document.createElement('div');
-    row.style.cssText='display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid rgba(43,31,22,.07)';
-    row.innerHTML=`<button class="chip sm sched-on ${r?'active':''}" data-d="${d}" onclick="this.classList.toggle('active')" style="min-width:52px">${DAYS[L][d]}</button>
+    rows+=`<div style="display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid rgba(43,31,22,.07)">
+      <button class="chip sm sched-on ${r?'active':''}" data-d="${d}" onclick="this.classList.toggle('active')" style="min-width:52px">${DAYS[L][d]}</button>
       <input type="time" data-ds="${d}" value="${r?r.start_time.slice(0,5):'10:00'}" style="flex:1">
       <span style="color:var(--muted)">—</span>
-      <input type="time" data-de="${d}" value="${r?r.end_time.slice(0,5):'19:00'}" style="flex:1">`;
-    card.appendChild(row);
+      <input type="time" data-de="${d}" value="${r?r.end_time.slice(0,5):'19:00'}" style="flex:1"></div>`;
   }
+  plShow(`<h2>${t('plhours')}</h2><p class="sub">${t('plhourssub')}</p>${rows}
+    <button class="btn" id="btn-savesched" onclick="saveSchedule()">${t('saveschedule')}</button>
+    <button class="btn sec" onclick="plHide()">${t('plclose')}</button>`);
 }
 let savingSched=false, savedSchedTimer=null;
 async function saveSchedule(){
@@ -984,10 +963,8 @@ async function saveSchedule(){
       const {error:insErr}=await db.from('schedule').insert(rows);
       if(insErr){ toast('⚠ '+insErr.message); return; }
     }
-    await loadScheduleUI();                       // перечитываем из БД — то, что видно, = то, что сохранено
     toast(t('schedsaved'));
-    btn.textContent=t('savedok');                 // «Сохранено ✓» на пару секунд
-    savedSchedTimer=setTimeout(()=>{ btn.textContent=t('saveschedule'); }, 2200);
+    plHide(); renderPlanner();
     return;
   }catch(e){ toast('⚠ '+e.message); }
   finally{ savingSched=false; btn.disabled=false; if(btn.textContent===t('saving')) btn.textContent=label; }
@@ -1029,83 +1006,6 @@ async function uploadWork(){
 }
 async function delWork(id){ await db.from('portfolio').delete().eq('id',id); loadPortfolio(); }
 
-async function loadMasterBookings(){
-  const {data}=await db.from('bookings').select('*, services(name,duration_min)').eq('master_id',ME.id).order('date').order('start_time');
-  const box=document.getElementById('m-bookings');
-  if(!(data||[]).length){ box.innerHTML='<span class="note">'+t('nobookings2')+'</span>'; return; }
-  box.innerHTML='';
-  data.forEach(b=>{
-    const d=document.createElement('div'); d.className='bk-row';
-    d.innerHTML=`<div><div class="t1">${b.client_name?esc(b.client_name)+' · ':''}${esc(b.services?.name||'Service')} · ${money(b.price_cents)}</div>
-      <div class="t2">${b.date} · ${b.start_time.slice(0,5)}</div></div>
-      <div style="display:flex;gap:6px;align-items:center"><span class="status ${b.status}">${t('st_'+b.status)}</span>
-      ${b.status==='confirmed'?`<button class="btn sm sec" onclick="setBk('${b.id}','completed')">${t('done')}</button>`:''}</div>`;
-    box.appendChild(d);
-  });
-}
-async function setBk(id,status){ await db.from('bookings').update({status}).eq('id',id); loadMasterBookings(); if(!document.getElementById('mt-calendar').classList.contains('hidden')) renderCal(); if(!document.getElementById('mt-planner').classList.contains('hidden')) renderPlanner(); }
-
-/* ═══════════ CALENDAR ═══════════ */
-let CAL = { y:null, m:null, sel:null, bookings:[], workdays:new Set() };
-function calMove(delta){
-  let m=CAL.m+delta, y=CAL.y;
-  if(m<0){ m=11; y--; } if(m>11){ m=0; y++; }
-  CAL.y=y; CAL.m=m; CAL.sel=null; renderCal();
-}
-async function renderCal(){
-  if(CAL.y===null){ const n=new Date(); CAL.y=n.getFullYear(); CAL.m=n.getMonth(); }
-  const first=new Date(CAL.y,CAL.m,1), last=new Date(CAL.y,CAL.m+1,0);
-  document.getElementById('cal-title').textContent=MONTHS[L][CAL.m]+' '+CAL.y;
-
-  // рабочие дни недели + записи месяца
-  const [{data:sched},{data:bks}]=await Promise.all([
-    db.from('schedule').select('weekday').eq('master_id',ME.id),
-    db.from('bookings').select('*, services(name,duration_min)').eq('master_id',ME.id)
-      .gte('date',iso(first)).lte('date',iso(last)).order('start_time')
-  ]);
-  CAL.workdays=new Set((sched||[]).map(r=>r.weekday));
-  CAL.bookings=bks||[];
-
-  // шапка дней недели — с понедельника
-  const dows=document.getElementById('cal-dows'); dows.innerHTML='';
-  [1,2,3,4,5,6,0].forEach(d=>{ const e=document.createElement('div'); e.className='cal-dow'; e.textContent=DAYS[L][d]; dows.appendChild(e); });
-
-  const grid=document.getElementById('cal-days'); grid.innerHTML='';
-  const shift=(first.getDay()+6)%7;                      // сколько пустых до 1-го числа
-  for(let i=0;i<shift;i++){ const e=document.createElement('div'); e.className='cal-cell other'; grid.appendChild(e); }
-  const todayIso=iso(new Date());
-  for(let d=1; d<=last.getDate(); d++){
-    const dt=new Date(CAL.y,CAL.m,d), dIso=iso(dt);
-    const dayBks=CAL.bookings.filter(b=>b.date===dIso && b.status!=='cancelled_client' && b.status!=='cancelled_master');
-    const isWork=CAL.workdays.has(dt.getDay());
-    const cell=document.createElement('div');
-    cell.className='cal-cell'+(isWork?' work':'')+(dIso===todayIso?' today':'')+(CAL.sel===dIso?' sel':'');
-    cell.innerHTML=`<span>${d}</span><span class="dots">${dayBks.length?'<i class="dot bk"></i>'.repeat(Math.min(dayBks.length,3)):(isWork?'<i class="dot wk"></i>':'')}</span>`;
-    cell.onclick=()=>{ CAL.sel=dIso; renderCal(); showCalDay(dIso); };
-    grid.appendChild(cell);
-  }
-  if(CAL.sel) showCalDay(CAL.sel); else document.getElementById('cal-day-list').innerHTML='<span class="note">'+t('pickadaynote')+'</span>';
-}
-function showCalDay(dIso){
-  const [y,m,d]=dIso.split('-').map(Number);
-  const dt=new Date(y,m-1,d);
-  document.getElementById('cal-day-title').textContent=WDFULL[L][dt.getDay()]+', '+d+' '+MONTHS[L][m-1];
-  const list=document.getElementById('cal-day-list');
-  const bks=CAL.bookings.filter(b=>b.date===dIso).sort((a,b)=>a.start_time.localeCompare(b.start_time));
-  if(!bks.length){
-    list.innerHTML='<span class="note">'+(CAL.workdays.has(dt.getDay())?t('freeday'):t('offday'))+'</span>';
-    return;
-  }
-  list.innerHTML='';
-  bks.forEach(b=>{
-    const row=document.createElement('div'); row.className='bk-row';
-    const dur=bkDur(b);
-    row.innerHTML=`<div><div class="t1">${fmtMin(toMin(b.start_time))} · ${esc(b.services?.name||'')}</div>
-      <div class="t2">${dur} ${t('minshort')} · ${money(b.price_cents)}</div></div>
-      <span class="status ${b.status}">${t('st_'+b.status)||b.status}</span>`;
-    list.appendChild(row);
-  });
-}
 function iso(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 
 /* ═══════════ PLANNER · Расписание (День / Неделя / Месяц) ═══════════ */
@@ -1137,6 +1037,7 @@ function plWin(dateIso){                         // рабочее окно дн
   return [toMin(r.start_time),toMin(r.end_time)];
 }
 function plDayBlocks(dateIso){ return PL.blocks.filter(b=>b.date===dateIso&&b.kind==='block').map(b=>[toMin(b.start_time),toMin(b.end_time)]); }
+function plDayBlockRows(dateIso){ return PL.blocks.filter(b=>b.date===dateIso&&b.kind==='block'); }
 function plDayBks(dateIso){ return PL.bks.filter(b=>b.date===dateIso&&!['cancelled_client','cancelled_master'].includes(b.status)).sort((a,b)=>a.start_time.localeCompare(b.start_time)); }
 function plName(b){ return b.client_name||PL.names[b.client_id]||t('plclient'); }
 function bkDur(b){ return b.duration_min||bkDur(b); }   // своя длительность записи, иначе по услуге
@@ -1188,6 +1089,9 @@ function plRenderDay(){
       const picked=PL.pickDate===PL.date&&PL.pick.has(m);
       const click=(inWin&&!busy)?`onclick="plPickQ(${m})"`:'';
       h+=`<div class="pl-q ${cls} ${picked?'pick':''}" data-i="${i}" data-m="${i?':'+String(i*15).padStart(2,'0'):''}" style="top:${i*PLQ}px" ${click}></div>`; }
+    plDayBlockRows(PL.date).filter(x=>Math.floor(toMin(x.start_time)/60)===hh).forEach(x=>{
+      const a=toMin(x.start_time), b2=toMin(x.end_time);
+      h+=`<div class="pl-block" style="top:${((a%60)/15)*PLQ}px;height:${((b2-a)/15)*PLQ-4}px" onclick="event.stopPropagation();plBlockSheet('${x.id}')"><b>${t('plpersonal')}</b>${(b2-a)>=30&&x.note?`<i>${esc(x.note)}</i>`:''}</div>`; });
     bks.filter(b=>Math.floor(toMin(b.start_time)/60)===hh).forEach(b=>{
       const st=toMin(b.start_time), dur=bkDur(b);
       h+=`<div class="pl-appt ${b.status==='completed'?'done':''}" style="top:${((st%60)/15)*PLQ}px;height:${(dur/15)*PLQ-4}px" onclick="event.stopPropagation();plApptSheet('${b.id}')"><b>${esc(plName(b))}</b><i>${esc(b.services?.name||'')} · ${fmtMin(st)}–${fmtMin(st+dur)}</i></div>`; });
@@ -1217,6 +1121,7 @@ function plSelBar(win,blocks){
   const anyFree=[...PL.pick].some(m=>!blocks.some(([a,b])=>m>=a&&m<b));
   const label=rs.map(([a,b])=>fmtMin(a)+'–'+fmtMin(b)).join(', ');
   return `<div class="pl-selbar"><div><b>${t('plsel')}</b> · ${label} · ${total} ${t('minshort')}</div>
+    ${anyFree?`<input type="text" id="pl-note" placeholder="${t('plnote')}" autocomplete="off">`:''}
     <div class="acts">
       ${anyFree?`<button class="btn gold" onclick="plBlockSel()">${t('plclosebtn')}</button>
       <button class="btn ghost" onclick="plBlockSel(true)">${t('pltoend')}</button>`:''}
@@ -1230,8 +1135,14 @@ async function plBlockSel(toEnd){
   let rs=plRanges([...PL.pick].filter(m=>!blocks.some(([a,b])=>m>=a&&m<b)));
   if(toEnd){ const start=Math.min(...PL.pick); rs=[[start,win[1]]]; }
   if(!rs.length) return;
-  const rows=rs.map(([a,b])=>({master_id:ME.id,date:di,kind:'block',start_time:plHM(a),end_time:plHM(b)}));
-  const {error}=await db.from('blocked_slots').insert(rows);
+  const note=(document.getElementById('pl-note')?.value||'').trim()||null;
+  let rows=rs.map(([a,b])=>({master_id:ME.id,date:di,kind:'block',start_time:plHM(a),end_time:plHM(b),note}));
+  let {error}=await db.from('blocked_slots').insert(rows);
+  if(error && /note/i.test(error.message)){          // колонки note ещё нет — сохраняем без подписи
+    rows=rows.map(({note,...r})=>r);
+    ({error}=await db.from('blocked_slots').insert(rows));
+    if(!error && note) toast(t('plneednote'));
+  }
   if(error){ toast('⚠ '+error.message); return; }
   plPickClear(); toast(t('plclosed')); renderPlanner();
 }
@@ -1280,7 +1191,7 @@ function plRenderMonth(){
   const dt=plD(PL.date), y=dt.getFullYear(), m=dt.getMonth(), last=new Date(y,m+1,0).getDate(), todayIso=iso(new Date());
   document.getElementById('pl-title').textContent=MONTHS[L][m]+' '+y;
   let h='<div class="pl-mdays">'+[1,2,3,4,5,6,0].map(d=>`<div>${DAYS[L][d]}</div>`).join('')+'</div>';
-  h+=`<div class="pl-legend"><span><s style="background:var(--terra)"></s>${t('plbusy')}</span><span><s style="background:var(--pl-free)"></s>${t('plfree')}</span><span><s style="background:var(--pl-closed);border:1px solid rgba(43,31,22,.15)"></s>${t('ploff')}</span></div>`;
+  h+=`<div class="pl-legend"><span><s style="background:var(--chocolate)"></s>${t('plbusy')}</span><span><s style="background:var(--pl-free)"></s>${t('plfree')}</span><span><s style="background:var(--pl-closed);border:1px solid rgba(43,31,22,.15)"></s>${t('ploff')}</span></div>`;
   h+='<div class="pl-mgrid">';
   const shift=(new Date(y,m,1).getDay()+6)%7;
   for(let i=0;i<shift;i++) h+='<div class="pl-mcell other"></div>';
@@ -1337,7 +1248,18 @@ async function plSetBk(id,status){
   const {error}=await db.from('bookings').update({status}).eq('id',id);
   plHide(); if(error){ toast('⚠ '+error.message); return; }
   toast(status==='completed'?t('plcompleted'):status==='cancelled_master'?t('plcancelled'):t('st_no_show'));
-  renderPlanner(); loadMasterBookings();
+  renderPlanner();
+}
+
+function plBlockSheet(id){
+  const x=PL.blocks.find(v=>v.id===id); if(!x) return;
+  const a=toMin(x.start_time), b=toMin(x.end_time), dt=plD(x.date);
+  plShow(`<h2>${t('plpersonal')}</h2>
+    <p class="sub">${fmtMin(a)}–${fmtMin(b)} · ${WDFULL[L][dt.getDay()]}, ${dt.getDate()} ${MONTHS[L][dt.getMonth()]}${x.note?`<br>${esc(x.note)}`:''}</p>
+    <div class="pl-actions">
+      <button class="btn full" onclick="plReopen('${x.date}',${a},${b})">${t('plopentime')}</button>
+      <button class="btn sec full" onclick="plHide()">${t('plclose')}</button>
+    </div>`);
 }
 
 function plDayOffSheet(di){
@@ -1383,7 +1305,7 @@ async function plNewSheet(){
       <div><label>${t('price')}</label><input type="number" id="nb-price" min="0" value="${first?(first.price_cents/100):''}"></div>
     </div>
     <div class="pl-actions" style="margin-top:14px">
-      <button class="btn full gold" id="nb-go" onclick="plSaveManual()">${t('plsave')}</button>
+      <button class="btn full" id="nb-go" onclick="plSaveManual()">${t('plsave')}</button>
       <button class="btn sec full" onclick="plHide()">${t('plclose')}</button>
     </div>`);
   const dEl=document.getElementById('nb-date'); if(dEl) dEl.style.cssText='width:100%;border:var(--border);border-radius:10px;background:#fff;padding:12px 13px;font-family:var(--fs);font-size:16px;color:var(--chocolate);outline:none';
@@ -1416,7 +1338,7 @@ async function plSaveManual(){
   plHide(); toast(t('pladded'));
   PL.date=date; if(PL.mode!=='month') PL.mode='day';
   document.querySelectorAll('.pl-modes button').forEach(b=>b.classList.toggle('active',b.dataset.m===PL.mode));
-  renderPlanner(); loadMasterBookings();
+  renderPlanner();
 }
 async function plBlock(di,a,b){
   if(b<=a){ plHide(); return; }
