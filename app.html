@@ -160,8 +160,9 @@
   .pl-appt b{ display:block; font-size:15px; font-weight:600; line-height:1.2; }
   .pl-appt i{ font-style:normal; font-size:12.5px; font-weight:500; opacity:.92; }
   /* личное время — блок в сетке дня */
-  .pl-block{ position:absolute; left:0; right:0; border-radius:8px; padding:5px 10px; background:var(--pl-closed); border:1px solid rgba(43,31,22,.14); color:#4A3D30; cursor:pointer; overflow:hidden; z-index:1; }
-  .pl-block b{ display:block; font-size:13.5px; font-weight:600; line-height:1.25; }
+  .pl-block{ position:absolute; left:0; right:0; border-radius:8px; padding:0 10px; display:flex; flex-direction:column; justify-content:center; background:var(--pl-closed); border:1px solid rgba(43,31,22,.14); color:#4A3D30; cursor:pointer; overflow:hidden; z-index:1; }
+  .pl-block b{ display:block; font-size:13.5px; font-weight:600; line-height:1.2; }
+  .pl-block.xs b{ font-size:12.5px; line-height:1; }   /* 15-минутный блок: 18px высоты, текст по центру */
   .pl-block i{ font-style:normal; font-size:12px; color:var(--ink2); }
   .pl-appt.done{ background:var(--gold); color:var(--chocolate); }
   .pl-appt.done i{ opacity:.85; }
@@ -1091,7 +1092,7 @@ function plRenderDay(){
       h+=`<div class="pl-q ${cls} ${picked?'pick':''}" data-i="${i}" data-m="${i?':'+String(i*15).padStart(2,'0'):''}" style="top:${i*PLQ}px" ${click}></div>`; }
     plDayBlockRows(PL.date).filter(x=>Math.floor(toMin(x.start_time)/60)===hh).forEach(x=>{
       const a=toMin(x.start_time), b2=toMin(x.end_time);
-      h+=`<div class="pl-block" style="top:${((a%60)/15)*PLQ}px;height:${((b2-a)/15)*PLQ-4}px" onclick="event.stopPropagation();plBlockSheet('${x.id}')"><b>${t('plpersonal')}</b>${(b2-a)>=30&&x.note?`<i>${esc(x.note)}</i>`:''}</div>`; });
+      h+=`<div class="pl-block ${(b2-a)<30?'xs':''}" style="top:${((a%60)/15)*PLQ}px;height:${((b2-a)/15)*PLQ-4}px" onclick="event.stopPropagation();plBlockSheet('${x.id}')"><b>${t('plpersonal')}</b>${(b2-a)>=30&&x.note?`<i>${esc(x.note)}</i>`:''}</div>`; });
     bks.filter(b=>Math.floor(toMin(b.start_time)/60)===hh).forEach(b=>{
       const st=toMin(b.start_time), dur=bkDur(b);
       h+=`<div class="pl-appt ${b.status==='completed'?'done':''}" style="top:${((st%60)/15)*PLQ}px;height:${(dur/15)*PLQ-4}px" onclick="event.stopPropagation();plApptSheet('${b.id}')"><b>${esc(plName(b))}</b><i>${esc(b.services?.name||'')} · ${fmtMin(st)}–${fmtMin(st+dur)}</i></div>`; });
