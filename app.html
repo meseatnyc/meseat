@@ -221,6 +221,14 @@
   .pl-actions{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
   .pl-actions .btn{ margin-top:0; padding:13px; font-size:14.5px; }
   .pl-actions .btn.full{ grid-column:1/-1; }
+  /* подсказки «?» — тап показывает/прячет короткий текст */
+  .hq{ display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; margin-left:8px; vertical-align:middle; border-radius:50%; border:1.5px solid var(--bronze); background:transparent; color:var(--bronze); font-family:var(--fu); font-size:12px; font-weight:600; line-height:1; padding:0; cursor:pointer; }
+  .hqw.on .hq{ background:var(--bronze); color:var(--milk); }
+  .hqt{ display:none; font-family:var(--fu); font-size:13.5px; font-weight:400; line-height:1.45; color:var(--ink2); margin:4px 0 12px; }
+  .hqw.on .hqt{ display:block; }
+  .pl-selbar .hq{ border-color:rgba(252,250,246,.6); color:var(--milk); }
+  .pl-selbar .hqw.on .hq{ background:var(--milk); color:var(--chocolate); }
+  .pl-selbar .hqt{ color:rgba(252,250,246,.85); margin:6px 0 0; }
 
   /* revenue */
   .rev-big { font-family:var(--ft); font-size:42px; line-height:1.05; }
@@ -623,7 +631,10 @@ const D = {
  plneedtable:{en:'Blocked-time table missing — run the SQL from the setup note.',ru:'Нет таблицы blocked_slots — выполните SQL из инструкции.',es:'Falta la tabla blocked_slots — ejecuta el SQL.'},
  plsel:{en:'Selected',ru:'Выбрано',es:'Seleccionado'},
  plhours:{en:'Working hours',ru:'Часы работы',es:'Horario de trabajo'},
- plhourssub:{en:'Your regular week — when clients can book you. One-off changes (a day off, closed hours) are made right in the calendar.',ru:'Ваша обычная неделя — когда клиенты могут записаться. Разовые изменения (выходной, закрытые часы) делаются прямо в календаре.',es:'Tu semana habitual — cuándo pueden reservar las clientas. Los cambios puntuales se hacen en el calendario.'},
+ hq_hours:{en:'Your schedule by weekday. Clients see free slots only within these hours.',ru:'График по дням недели. Клиенты видят свободные окна только в эти часы.',es:'Tu horario por día de la semana. Las clientas ven huecos libres solo en estas horas.'},
+ hq_add:{en:'A booking for a client who came by phone, Instagram or another way.',ru:'Запись клиента, который пришёл по телефону, из Instagram или другим путём.',es:'Una cita para una clienta que llegó por teléfono, Instagram u otra vía.'},
+ hq_block:{en:'Closes the selected time for clients — they won\'t be able to book it.',ru:'Закрывает выбранное время для клиентов — записаться на него нельзя.',es:'Cierra el tiempo seleccionado — las clientas no podrán reservarlo.'},
+ hq_dayoff:{en:'Clients won\'t see any slots on this day. Bookings already made are not cancelled.',ru:'На этот день клиенты окон не увидят. Уже сделанные записи не отменяются.',es:'Las clientas no verán huecos este día. Las citas ya hechas no se cancelan.'},
  plpersonal:{en:'Personal time',ru:'Личное время',es:'Tiempo personal'},
  plnote:{en:'Note for yourself — optional',ru:'Подпись для себя — необязательно',es:'Nota para ti — opcional'},
  plneednote:{en:'Run personal_time.sql in Supabase to save notes.',ru:'Чтобы сохранять подписи, выполните personal_time.sql в Supabase.',es:'Ejecuta personal_time.sql en Supabase para guardar notas.'},
@@ -633,7 +644,6 @@ const D = {
  /* manual booking */
  pladd:{en:'+ Add booking',ru:'+ Добавить запись',es:'+ Agregar cita'},
  pladdtitle:{en:'New booking',ru:'Новая запись',es:'Nueva cita'},
- pladdsub:{en:'For clients who book by phone or Instagram — they don\'t need a MeSeat account.',ru:'Для клиентов, которые записываются по телефону или через Instagram — аккаунт MeSeat им не нужен.',es:'Para clientas que reservan por teléfono o Instagram — no necesitan cuenta en MeSeat.'},
  plcname:{en:'Client name',ru:'Имя клиента',es:'Nombre de la clienta'},
  plcphone:{en:'Phone (optional)',ru:'Телефон (необязательно)',es:'Teléfono (opcional)'},
  plsvc:{en:'Service',ru:'Услуга',es:'Servicio'},
@@ -939,7 +949,7 @@ async function plHoursSheet(){
       <span style="color:var(--muted)">—</span>
       <input type="time" data-de="${d}" value="${r?r.end_time.slice(0,5):'19:00'}" style="flex:1"></div>`;
   }
-  plShow(`<h2>${t('plhours')}</h2><p class="sub">${t('plhourssub')}</p>${rows}
+  plShow(`<div class="hqw"><h2>${t('plhours')}${plQ()}</h2><p class="hqt">${t('hq_hours')}</p></div>${rows}
     <button class="btn" id="btn-savesched" onclick="saveSchedule()">${t('saveschedule')}</button>
     <button class="btn sec" onclick="plHide()">${t('plclose')}</button>`);
 }
@@ -1045,6 +1055,7 @@ function plSt(b){ return b.status==='completed'?'done':b.status==='no_show'?'nos
 function plName(b){ return b.client_name||PL.names[b.client_id]||t('plclient'); }
 function bkDur(b){ return b.duration_min||b.services?.duration_min||60; }   // своя длительность записи, иначе по услуге
 function plHM(m){ return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0'); }
+function plQ(k){ return `<button type="button" class="hq" onclick="this.closest('.hqw').classList.toggle('on')" aria-label="?">?</button>`; }   // кружок «?» — тап раскрывает подсказку t(k) в соседнем .hqt
 function plHr(h){ return (h%12||12)+' '+(h>=12&&h<24?'PM':'AM'); }   // 10 → «10 AM», 12 → «12 PM», 13 → «1 PM» — колонка времени в Day/Week
 
 async function plLoad(){
@@ -1122,7 +1133,7 @@ function plSelBar(win,blocks){
   const anyClosed=[...PL.pick].some(m=>blocks.some(([a,b])=>m>=a&&m<b));
   const anyFree=[...PL.pick].some(m=>!blocks.some(([a,b])=>m>=a&&m<b));
   const label=rs.map(([a,b])=>fmtMin(a)+'–'+fmtMin(b)).join(', ');
-  return `<div class="pl-selbar"><div><b>${t('plsel')}</b> · ${label} · ${total} ${t('minshort')}</div>
+  return `<div class="pl-selbar"><div class="hqw"><div><b>${t('plsel')}</b> · ${label} · ${total} ${t('minshort')}${plQ()}</div><p class="hqt">${t('hq_block')}</p></div>
     ${anyFree?`<input type="text" id="pl-note" placeholder="${t('plnote')}" autocomplete="off">`:''}
     <div class="acts">
       ${anyFree?`<button class="btn gold" onclick="plBlockSel()">${t('plclosebtn')}</button>
@@ -1271,7 +1282,7 @@ function plDayOffSheet(di){
   const isOff=PL.blocks.some(b=>b.date===di&&b.kind==='dayoff');
   const title=`${WDFULL[L][wd]}, ${dt.getDate()} ${MONTHS[L][dt.getMonth()]}`;
   if(!inSched){ plShow(`<h2>${title}</h2><p class="sub">${t('plnotinsched')}</p><div class="pl-actions"><button class="btn sec full" onclick="plHide()">${t('plclose')}</button></div>`); return; }
-  plShow(`<h2>${title}</h2><p class="sub">${isOff?t('pldayoffnow'):t('pldayoffq')}</p>
+  plShow(`<div class="hqw"><h2>${title}${plQ()}</h2><p class="hqt">${t('hq_dayoff')}</p></div><p class="sub">${isOff?t('pldayoffnow'):t('pldayoffq')}</p>
     <div class="pl-actions">
       <button class="btn full" onclick="plToggleDayOff('${di}',${isOff})">${isOff?t('plmakework'):t('plmakeoff')}</button>
       <button class="btn sec full" onclick="plHide();renderPlanner()">${t('plclose')}</button>
@@ -1294,7 +1305,7 @@ async function plNewSheet(){
   const first=PL_SVCS[0];
   const win=plWin(PL.date||iso(new Date()));
   const startDefault=win?plHM(win[0]):'10:00';
-  plShow(`<h2>${t('pladdtitle')}</h2><p class="sub">${t('pladdsub')}</p>
+  plShow(`<div class="hqw"><h2>${t('pladdtitle')}${plQ()}</h2><p class="hqt">${t('hq_add')}</p></div>
     <label>${t('plcname')}</label><input type="text" id="nb-name" autocomplete="off">
     <label>${t('plcphone')}</label><input type="tel" id="nb-phone" placeholder="+1 ...">
     <label>${t('plsvc')}</label><select id="nb-svc" onchange="plNbSvc()">${opts||'<option value="">—</option>'}</select>
